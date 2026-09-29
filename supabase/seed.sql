@@ -66,12 +66,12 @@ values
    (current_date + time '18:00') at time zone 'Europe/Dublin',
    (current_date + time '19:00') at time zone 'Europe/Dublin',
    false, null, null, '11111111-1111-1111-1111-111111111111'),
-  -- Weekly bin day, all day, nobody attached = whole family
+  -- Weekly bins at 6am, no end time, nobody attached = whole family
   ('e0000000-0000-0000-0000-000000000003', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Bins out',
    null,
-   current_date::timestamp at time zone 'Europe/Dublin',
-   current_date::timestamp at time zone 'Europe/Dublin',
-   true, 'FREQ=WEEKLY', null, '11111111-1111-1111-1111-111111111111'),
+   (current_date + time '06:00') at time zone 'Europe/Dublin',
+   null,
+   false, 'FREQ=WEEKLY', null, '11111111-1111-1111-1111-111111111111'),
   -- Other Family's event, which Test Family must never see
   ('e0000000-0000-0000-0000-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Football',
    null,
