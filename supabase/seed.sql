@@ -44,3 +44,45 @@ values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Parent',   '#3B82F6', '11111111-1111-1111-1111-111111111111'),
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Ella',     '#EC4899', null),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Stranger', '#10B981', '22222222-2222-2222-2222-222222222222');
+
+-- Categories: one of Test Family's own (no starter list yet)
+insert into public.categories (id, family_id, name)
+values ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Hurling');
+
+-- Events ----------------------------------------------------------------------
+-- Times are "today" in the family's timezone, so there's always something
+-- on today's calendar after a reset.
+insert into public.events (id, family_id, title, category_id, starts_at, ends_at, all_day, repeat, notes, created_by)
+values
+  -- Weekly swimming, Ella
+  ('e0000000-0000-0000-0000-000000000001', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Swimming',
+   null,
+   (current_date + time '16:00') at time zone 'Europe/Dublin',
+   (current_date + time '17:00') at time zone 'Europe/Dublin',
+   false, 'FREQ=WEEKLY', 'Bring goggles', '11111111-1111-1111-1111-111111111111'),
+  -- One-off slow cooker dinner, Parent cooking
+  ('e0000000-0000-0000-0000-000000000002', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Beef stew',
+   null,
+   (current_date + time '18:00') at time zone 'Europe/Dublin',
+   (current_date + time '19:00') at time zone 'Europe/Dublin',
+   false, null, null, '11111111-1111-1111-1111-111111111111'),
+  -- Weekly bin day, all day, nobody attached = whole family
+  ('e0000000-0000-0000-0000-000000000003', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Bins out',
+   null,
+   current_date::timestamp at time zone 'Europe/Dublin',
+   current_date::timestamp at time zone 'Europe/Dublin',
+   true, 'FREQ=WEEKLY', null, '11111111-1111-1111-1111-111111111111'),
+  -- Other Family's event, which Test Family must never see
+  ('e0000000-0000-0000-0000-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Football',
+   null,
+   (current_date + time '10:00') at time zone 'Europe/Dublin',
+   (current_date + time '11:00') at time zone 'Europe/Dublin',
+   false, null, null, '22222222-2222-2222-2222-222222222222');
+
+-- Who each event is for (Bins out has no rows = whole family)
+insert into public.event_members (event_id, member_id)
+select 'e0000000-0000-0000-0000-000000000001'::uuid, id from public.members where display_name = 'Ella'
+union all
+select 'e0000000-0000-0000-0000-000000000002'::uuid, id from public.members where display_name = 'Parent'
+union all
+select 'e0000000-0000-0000-0000-000000000004'::uuid, id from public.members where display_name = 'Stranger';
