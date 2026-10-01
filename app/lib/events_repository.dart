@@ -31,7 +31,7 @@ class EventsRepository {
         .select('id, title, starts_at')
         .gte('starts_at', start.toUtc().toIso8601String())
         .lt('starts_at', end.toUtc().toIso8601String())
-        .order('starts_at');
+        .order('starts_at', ascending: true);
 
     return rows.map(Event.fromJson).toList();
   }
