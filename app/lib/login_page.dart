@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'styles/spacing.dart';
 
@@ -18,6 +19,18 @@ class _LoginPageState extends State<LoginPage> {
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _logIn() async {
+    try {
+      final response = await Supabase.instance.client.auth.signInWithPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
+      );
+      debugPrint('Logged in as ${response.user?.email}');
+    } on AuthException catch (error) {
+      debugPrint('Login failed: ${error.message}');
+    }
   }
 
   @override
@@ -40,13 +53,7 @@ class _LoginPageState extends State<LoginPage> {
               obscureText: true,
             ),
             const SizedBox(height: 24),
-            FilledButton(
-              onPressed: () {
-                debugPrint('Email: ${_emailController.text}');
-                debugPrint('Password: ${_passwordController.text}');
-              },
-              child: const Text("Log in"),
-            ),
+            FilledButton(onPressed: _logIn, child: const Text("Log in")),
           ],
         ),
       ),
