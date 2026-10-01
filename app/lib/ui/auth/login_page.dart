@@ -1,11 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:app/data/repositories/auth_repository.dart';
+import 'package:app/data/repositories/events_repository.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/ui/core/spacing.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  const LoginPage({
+    super.key,
+    required this.authRepository,
+    required this.eventsRepository,
+  });
+
+  final AuthRepository authRepository;
+  final EventsRepository eventsRepository;
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -24,16 +32,19 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _logIn() async {
     try {
-      await Supabase.instance.client.auth.signInWithPassword(
+      await widget.authRepository.signIn(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
 
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(
+          builder: (context) =>
+              HomePage(eventsRepository: widget.eventsRepository),
+        ),
       );
-    } on AuthException catch (error) {
+    } on AuthFailure catch (error) {
       debugPrint('Login failed: ${error.message}');
     }
   }

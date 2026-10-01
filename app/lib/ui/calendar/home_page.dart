@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:app/data/repositories/events_repository.dart';
 import 'package:app/ui/core/spacing.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.eventsRepository});
+
+  final EventsRepository eventsRepository;
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -17,7 +18,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _events = EventsRepository(Supabase.instance.client).fetchToday();
+    _events = widget.eventsRepository.fetchToday();
   }
 
   @override

@@ -39,6 +39,8 @@ These live in the migrations; they are summarised here because they are easy to 
 ## Flutter app
 
 - Talk to Supabase through a repository layer (e.g. `EventsRepository`) so the backend can change later.
+- `lib/` layout (from Flutter's app architecture guide): `data/` by type (`repositories/`, later `models/`), `ui/` by feature (`auth/`, `calendar/`, ...) with shared UI in `ui/core/`. A feature's own widgets go in `ui/<feature>/widgets/`. Don't create folders until a file needs them.
+- Import app files with `package:app/...`, not relative paths.
 - `supabase_flutter` 2.18+ takes `publishableKey`; `anonKey` is deprecated.
 - The Android emulator reaches the host's local Supabase at `http://10.0.2.2:54321`; iOS simulator, macOS and web use `http://127.0.0.1:54321`.
 - The bundle ID is still the default `com.example.app`. Settle it before Google/Apple sign-in (issue #8), since it is hard to change afterwards.
