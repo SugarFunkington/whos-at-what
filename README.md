@@ -3,7 +3,9 @@
 A family calendar showing what everyone is up to today, with a "how to prep for the day" section at the top.
 
 - `supabase/` - backend: database migrations, local test data (`seed.sql`), tests
-- `app/` - Flutter app (coming soon)
+- `app/` - Flutter app (early days: a "Hello world" stub)
+
+Project context and working rules for AI agents are in `AGENTS.md`.
 
 ## Local development
 
