@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'home_page.dart';
-import 'styles/spacing.dart';
+import 'package:app/ui/calendar/home_page.dart';
+import 'package:app/ui/core/spacing.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

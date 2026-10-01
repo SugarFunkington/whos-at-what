@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'events_repository.dart';
-import 'styles/spacing.dart';
+import 'package:app/data/repositories/events_repository.dart';
+import 'package:app/ui/core/spacing.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
