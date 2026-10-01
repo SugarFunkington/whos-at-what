@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'styles/spacing.dart';
+
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
 
@@ -8,7 +10,7 @@ class LoginPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Log in')),
       body: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: pagePadding,
         child: Column(
           children: [
             const TextField(
