@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'home_page.dart';
 import 'styles/spacing.dart';
 
 class LoginPage extends StatefulWidget {
@@ -27,7 +28,11 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
-      debugPrint('Logged in as ${response.user?.email}');
+
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => const HomePage()),
+      );
     } on AuthException catch (error) {
       debugPrint('Login failed: ${error.message}');
     }
