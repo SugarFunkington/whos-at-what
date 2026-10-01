@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'login_page.dart';
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -9,5 +11,5 @@ Future<void> main() async {
     publishableKey: const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
   );
 
-  runApp(MaterialApp(home: Center(child: Text('Hello world!'))));
+  runApp(const MaterialApp(home: LoginPage()));
 }
