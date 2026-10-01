@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _logIn() async {
     try {
-      final response = await Supabase.instance.client.auth.signInWithPassword(
+      await Supabase.instance.client.auth.signInWithPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text,
       );
