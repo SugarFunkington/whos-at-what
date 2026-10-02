@@ -1,4 +1,4 @@
-import 'package:app/data/repositories/auth_repository.dart';
+import 'package:app/data/repositories/auth/auth_repository_supabase.dart';
 import 'package:app/data/repositories/events/events_repository_supabase.dart';
 import 'package:app/ui/auth/login_page.dart';
 import 'package:app/ui/calendar/home_page.dart';
@@ -14,12 +14,12 @@ Future<void> main() async {
   );
 
   final client = Supabase.instance.client;
-  final authRepository = AuthRepository(client);
+  final authRepository = AuthRepositorySupabase(client);
   final eventsRepository = EventsRepositorySupabase(client);
 
   runApp(
     MaterialApp(
-      home: authRepository.isLoggedIn
+      home: authRepository.isAuthenticated
           ? HomePage(eventsRepository: eventsRepository)
           : LoginPage(
               authRepository: authRepository,
