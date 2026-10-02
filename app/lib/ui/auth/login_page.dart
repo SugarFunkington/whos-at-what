@@ -1,9 +1,8 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/data/repositories/auth_repository.dart';
-import 'package:app/data/repositories/events_repository.dart';
+import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/ui/core/spacing.dart';
+import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
