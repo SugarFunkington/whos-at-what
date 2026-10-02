@@ -1,20 +1,5 @@
+import 'package:app/domain/models/event.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-class Event {
-  const Event({required this.id, required this.title, required this.startsAt});
-
-  final String id;
-  final String title;
-  final DateTime startsAt;
-
-  factory Event.fromJson(Map<String, dynamic> json) {
-    return Event(
-      id: json['id'] as String,
-      title: json['title'] as String,
-      startsAt: DateTime.parse(json['starts_at'] as String).toLocal(),
-    );
-  }
-}
 
 class EventsRepository {
   EventsRepository(this._client);

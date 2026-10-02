@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
-
 import 'package:app/data/repositories/events_repository.dart';
+import 'package:app/domain/models/event.dart';
 import 'package:app/ui/core/spacing.dart';
+import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key, required this.eventsRepository});
