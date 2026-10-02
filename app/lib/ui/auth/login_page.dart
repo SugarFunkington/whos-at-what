@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
-
-import 'package:app/data/repositories/auth_repository.dart';
-import 'package:app/data/repositories/events_repository.dart';
+import 'package:app/data/repositories/auth/auth_repository.dart';
+import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/ui/core/spacing.dart';
+import 'package:app/utils/result.dart';
+import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({
@@ -31,21 +31,23 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _logIn() async {
-    try {
-      await widget.authRepository.signIn(
-        email: _emailController.text.trim(),
-        password: _passwordController.text,
-      );
+    final result = await widget.authRepository.login(
+      email: _emailController.text.trim(),
+      password: _passwordController.text,
+    );
 
-      if (!mounted) return;
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(
-          builder: (context) =>
-              HomePage(eventsRepository: widget.eventsRepository),
-        ),
-      );
-    } on AuthFailure catch (error) {
-      debugPrint('Login failed: ${error.message}');
+    if (!mounted) return;
+
+    switch (result) {
+      case Ok():
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) =>
+                HomePage(eventsRepository: widget.eventsRepository),
+          ),
+        );
+      case Error():
+        debugPrint('Login failed: ${result.error}');
     }
   }
 
