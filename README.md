@@ -3,7 +3,7 @@
 A family calendar showing what everyone is up to today, with a "how to prep for the day" section at the top.
 
 - `supabase/` - backend: database migrations, local test data (`seed.sql`), tests
-- `app/` - Flutter app (early days: a "Hello world" stub)
+- `app/` - Flutter app: email/password login and a list of today's events
 
 Project context and working rules for AI agents are in `AGENTS.md`.
 
@@ -22,6 +22,20 @@ Local dashboard: http://127.0.0.1:54323
 Test logins (local only, password `password123`):
 - `parent@example.com` - Test Family (with child member Ella)
 - `stranger@example.com` - Other Family
+
+## Running the app
+
+With local Supabase running:
+
+```bash
+cd app
+cp env/example.json env/local.json   # first time only: paste the Publishable key from `supabase status`
+flutter run --dart-define-from-file=env/local.json
+flutter analyze                      # static checks
+flutter test                         # tests
+```
+
+`env/local.json` is gitignored; never put the secret / service_role key in it. On the Android emulator, set `SUPABASE_URL` to `http://10.0.2.2:54321`.
 
 ## Changing the database
 
