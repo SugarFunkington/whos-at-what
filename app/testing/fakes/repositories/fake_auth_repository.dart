@@ -9,7 +9,7 @@ class FakeAuthRepository extends AuthRepository {
   bool _isAuthenticated = false;
 
   @override
-  get isAuthenticated => _isAuthenticated;
+  bool get isAuthenticated => _isAuthenticated;
 
   @override
   Future<Result<void>> login({

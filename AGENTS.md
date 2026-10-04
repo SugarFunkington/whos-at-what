@@ -59,7 +59,7 @@ lib/
 - Repositories turn Supabase errors into app types (`AuthFailure`), so the UI never sees a Supabase type.
 - Screen logic (calling repositories, `try/catch`, loading state) still lives in each page's `State` class.
 - `test/widget_test.dart` is the broken Flutter counter template, so `flutter analyze` reports one error until #26 replaces it.
-- Import app files with `package:app/...`, not relative paths.
+- Import app files with `package:app/...`, not relative paths. The exception is tests importing from top-level `testing/` (e.g. fakes): `package:app/` only covers `lib/`, so use a relative path like `'../testing/fakes/repositories/fake_auth_repository.dart'`, as compass_app does.
 - `supabase_flutter` 2.18+ takes `publishableKey`; `anonKey` is deprecated.
 - The Android emulator reaches the host's local Supabase at `http://10.0.2.2:54321`; iOS simulator, macOS and web use `http://127.0.0.1:54321`.
 - The bundle ID is still the default `com.example.app`. Settle it before Google/Apple sign-in (issue #8), since it is hard to change afterwards.
