@@ -14,6 +14,7 @@ The user is learning Flutter through this project. Work in small, agreed steps:
 - Each piece of work starts from a GitHub issue (`gh issue list`). Labels `v1` / `later` set scope.
 - Do the one step asked for, explain the Flutter concepts it uses, then stop and let the user pick the next step.
 - When a ticket has several tasks, treat each task as its own step.
+- Tickets are often agent-drafted, so they can be wrong. Check each task against the code and the target architecture before doing it. If a task is inaccurate or would add a code smell, raise it with the user and agree the fix first.
 
 ## Safety
 
@@ -44,21 +45,26 @@ Run commands from `app/`: `flutter analyze`, `flutter test`, `flutter run --dart
 
 ```
 lib/
-  main.dart                      creates the repositories, picks the first page
+  main.dart                            creates the *Supabase repositories, picks the first page
   data/repositories/
-    auth_repository.dart         AuthRepository (Supabase), AuthFailure
-    events_repository.dart       EventsRepository (Supabase), Event model
+    auth/auth_repository.dart          abstract AuthRepository (ChangeNotifier), AuthFailure
+    auth/auth_repository_supabase.dart AuthRepositorySupabase
+    events/events_repository.dart      abstract EventsRepository
+    events/events_repository_supabase.dart  EventsRepositorySupabase
+  domain/models/event.dart             Event (immutable)
   ui/
-    core/spacing.dart            shared spacing constants
-    auth/login_page.dart         LoginPage
-    calendar/home_page.dart      HomePage: today's events
+    core/spacing.dart                  shared spacing constants
+    auth/login_page.dart               LoginPage
+    calendar/home_page.dart            HomePage: today's events
+  utils/result.dart                    Result<T>: Ok / Error
+testing/fakes/repositories/            FakeAuthRepository, FakeEventsRepository
+test/ui/auth/login_page_test.dart      login navigates to home / stays on login
 ```
 
-- Only `main.dart` and `lib/data/` import `supabase_flutter`. Pages talk to the backend only through repositories, so the backend can be swapped later.
-- Repositories are concrete Supabase classes, built once in `main.dart` and passed to pages through constructors.
-- Repositories turn Supabase errors into app types (`AuthFailure`), so the UI never sees a Supabase type.
-- Screen logic (calling repositories, `try/catch`, loading state) still lives in each page's `State` class.
-- `test/widget_test.dart` is the broken Flutter counter template, so `flutter analyze` reports one error until #26 replaces it.
+- Only `main.dart` and `lib/data/` import `supabase_flutter`. Pages depend on the abstract repositories; only `main.dart` creates the `*Supabase` classes and passes them to pages through constructors.
+- Repositories return `Result<T>` instead of throwing, and catch `on Exception` only, so Dart `Error`s (bugs) still surface. Failures Supabase reports become app types (`AuthFailure`), so the UI never sees a Supabase type. Pages `switch` on the `Result`.
+- Screen logic (calling repositories, loading state) still lives in each page's `State` class.
+- Tests use the fakes, never Supabase. Each fake takes its canned answer in the constructor: `FakeAuthRepository()` logs in, `FakeAuthRepository(loginResult: const Result.error(AuthFailure('...')))` fails; `FakeEventsRepository()` returns no events, or pass `result:`. Each test covers its own screen's behaviour only (e.g. the login test checks navigation, not what `HomePage` shows).
 - Import app files with `package:app/...`, not relative paths. The exception is tests importing from top-level `testing/` (e.g. fakes): `package:app/` only covers `lib/`, so use a relative path like `'../testing/fakes/repositories/fake_auth_repository.dart'`, as compass_app does.
 - `supabase_flutter` 2.18+ takes `publishableKey`; `anonKey` is deprecated.
 - The Android emulator reaches the host's local Supabase at `http://10.0.2.2:54321`; iOS simulator, macOS and web use `http://127.0.0.1:54321`.
