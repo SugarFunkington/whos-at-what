@@ -45,7 +45,8 @@ Run commands from `app/`: `flutter analyze`, `flutter test`, `flutter run --dart
 
 ```
 lib/
-  main.dart                            creates the *Supabase repositories, picks the first page
+  main.dart                            Supabase.initialize, MultiProvider, MainApp picks the first page
+  config/dependencies.dart             providers: which implementations the app uses
   data/repositories/
     auth/auth_repository.dart          abstract AuthRepository (ChangeNotifier), AuthFailure
     auth/auth_repository_supabase.dart AuthRepositorySupabase
@@ -61,10 +62,12 @@ testing/fakes/repositories/            FakeAuthRepository, FakeEventsRepository
 test/ui/auth/login_page_test.dart      login navigates to home / stays on login
 ```
 
-- Only `main.dart` and `lib/data/` import `supabase_flutter`. Pages depend on the abstract repositories; only `main.dart` creates the `*Supabase` classes and passes them to pages through constructors.
+- Only `lib/config/`, `lib/data/` and `main.dart` (for `Supabase.initialize`) import `supabase_flutter`. `config/dependencies.dart` is the only place that picks implementations: `SupabaseClient` as a `Provider`, `AuthRepository` as a `ChangeNotifierProvider`, other repositories as `Provider`, each cast to its interface (`as AuthRepository`). Order matters: a provider can only `context.read()` providers earlier in the list.
+- Pages read repositories with `context.read<T>()` (in callbacks and `initState`), never through constructors. Only services and repositories are provided; view models are not (they are created where a screen is built, #24).
+- `MainApp` reads `isAuthenticated` once at startup, so it does not react to login/logout; the go_router redirect in #23 takes that over.
 - Repositories return `Result<T>` instead of throwing, and catch `on Exception` only, so Dart `Error`s (bugs) still surface. Failures Supabase reports become app types (`AuthFailure`), so the UI never sees a Supabase type. Pages `switch` on the `Result`.
 - Screen logic (calling repositories, loading state) still lives in each page's `State` class.
-- Tests use the fakes, never Supabase. Each fake takes its canned answer in the constructor: `FakeAuthRepository()` logs in, `FakeAuthRepository(loginResult: const Result.error(AuthFailure('...')))` fails; `FakeEventsRepository()` returns no events, or pass `result:`. Each test covers its own screen's behaviour only (e.g. the login test checks navigation, not what `HomePage` shows).
+- Tests use the fakes, never Supabase. Each fake takes its canned answer in the constructor: `FakeAuthRepository()` logs in, `FakeAuthRepository(loginResult: const Result.error(AuthFailure('...')))` fails; `FakeEventsRepository()` returns no events, or pass `result:`. Widget tests wrap the screen in `MultiProvider` with fakes via `.value`, typed by interface: `ChangeNotifierProvider<AuthRepository>.value(value: FakeAuthRepository())`. Each test covers its own screen's behaviour only (e.g. the login test checks navigation, not what `HomePage` shows).
 - Import app files with `package:app/...`, not relative paths. The exception is tests importing from top-level `testing/` (e.g. fakes): `package:app/` only covers `lib/`, so use a relative path like `'../testing/fakes/repositories/fake_auth_repository.dart'`, as compass_app does.
 - `supabase_flutter` 2.18+ takes `publishableKey`; `anonKey` is deprecated.
 - The Android emulator reaches the host's local Supabase at `http://10.0.2.2:54321`; iOS simulator, macOS and web use `http://127.0.0.1:54321`.
