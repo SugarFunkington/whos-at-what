@@ -1,19 +1,12 @@
 import 'package:app/data/repositories/auth/auth_repository.dart';
-import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/ui/core/spacing.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({
-    super.key,
-    required this.authRepository,
-    required this.eventsRepository,
-  });
-
-  final AuthRepository authRepository;
-  final EventsRepository eventsRepository;
+  const LoginPage({super.key});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -31,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> _logIn() async {
-    final result = await widget.authRepository.login(
+    final result = await context.read<AuthRepository>().login(
       email: _emailController.text.trim(),
       password: _passwordController.text,
     );
@@ -40,12 +33,9 @@ class _LoginPageState extends State<LoginPage> {
 
     switch (result) {
       case Ok():
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (context) =>
-                HomePage(eventsRepository: widget.eventsRepository),
-          ),
-        );
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => HomePage()));
       case Error():
         debugPrint('Login failed: ${result.error}');
     }

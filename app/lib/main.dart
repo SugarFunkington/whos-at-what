@@ -1,8 +1,9 @@
-import 'package:app/data/repositories/auth/auth_repository_supabase.dart';
-import 'package:app/data/repositories/events/events_repository_supabase.dart';
+import 'package:app/config/dependencies.dart';
+import 'package:app/data/repositories/auth/auth_repository.dart';
 import 'package:app/ui/auth/login_page.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -13,18 +14,18 @@ Future<void> main() async {
     publishableKey: const String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY'),
   );
 
-  final client = Supabase.instance.client;
-  final authRepository = AuthRepositorySupabase(client);
-  final eventsRepository = EventsRepositorySupabase(client);
+  runApp(MultiProvider(providers: providers, child: const MainApp()));
+}
 
-  runApp(
-    MaterialApp(
-      home: authRepository.isAuthenticated
-          ? HomePage(eventsRepository: eventsRepository)
-          : LoginPage(
-              authRepository: authRepository,
-              eventsRepository: eventsRepository,
-            ),
-    ),
-  );
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final isAuthenticated = context.read<AuthRepository>().isAuthenticated;
+
+    return MaterialApp(
+      home: isAuthenticated ? const HomePage() : const LoginPage(),
+    );
+  }
 }

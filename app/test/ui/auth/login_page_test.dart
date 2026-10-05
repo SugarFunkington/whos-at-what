@@ -1,14 +1,26 @@
 import 'package:app/data/repositories/auth/auth_repository.dart';
+import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/auth/login_page.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:provider/provider.dart';
 
 import '../../../testing/fakes/repositories/fake_auth_repository.dart';
 import '../../../testing/fakes/repositories/fake_events_repository.dart';
 
 void main() {
+  Widget app(AuthRepository authRepository) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AuthRepository>.value(value: authRepository),
+        Provider<EventsRepository>.value(value: FakeEventsRepository()),
+      ],
+      child: const MaterialApp(home: LoginPage()),
+    );
+  }
+
   Future<void> logIn(WidgetTester tester) async {
     await tester.enterText(
       find.widgetWithText(TextField, 'Email'),
@@ -23,14 +35,7 @@ void main() {
   }
 
   testWidgets('successful login navigates to home', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: LoginPage(
-          authRepository: FakeAuthRepository(),
-          eventsRepository: FakeEventsRepository(),
-        ),
-      ),
-    );
+    await tester.pumpWidget(app(FakeAuthRepository()));
 
     await logIn(tester);
 
@@ -40,14 +45,11 @@ void main() {
 
   testWidgets('failed login stays on the login page', (tester) async {
     await tester.pumpWidget(
-      MaterialApp(
-        home: LoginPage(
-          authRepository: FakeAuthRepository(
-            loginResult: const Result.error(
-              AuthFailure('Invalid login credentials'),
-            ),
+      app(
+        FakeAuthRepository(
+          loginResult: const Result.error(
+            AuthFailure('Invalid login credentials'),
           ),
-          eventsRepository: FakeEventsRepository(),
         ),
       ),
     );
