@@ -45,7 +45,7 @@ Run commands from `app/`: `flutter analyze`, `flutter test`, `flutter run --dart
 
 ```
 lib/
-  main.dart                            Supabase.initialize, MultiProvider, MainApp picks the first page
+  main.dart                            Supabase.initialize, MultiProvider, MainApp picks the first screen
   config/dependencies.dart             providers: which implementations the app uses
   data/repositories/
     auth/auth_repository.dart          abstract AuthRepository (ChangeNotifier), AuthFailure
@@ -55,19 +55,29 @@ lib/
   domain/models/event.dart             Event (immutable)
   ui/
     core/spacing.dart                  shared spacing constants
-    auth/login_page.dart               LoginPage
-    calendar/home_page.dart            HomePage: today's events
-  utils/result.dart                    Result<T>: Ok / Error
+    auth/login/view_models/login_viewmodel.dart  LoginViewModel: login command
+    auth/login/widgets/login_screen.dart         LoginScreen
+    home/view_models/home_viewmodel.dart         HomeViewModel: load command + today's events
+    home/widgets/home_screen.dart                HomeScreen: today's events, error + retry
+  utils/
+    command.dart                       Command / CommandWithArg
+    result.dart                        Result<T>: Ok / Error
 testing/fakes/repositories/            FakeAuthRepository, FakeEventsRepository
-test/ui/auth/login_page_test.dart      login navigates to home / stays on login
+test/                                  mirrors lib/: ui/<feature>/view_models/, ui/<feature>/widgets/, utils/
 ```
 
 - Only `lib/config/`, `lib/data/` and `main.dart` (for `Supabase.initialize`) import `supabase_flutter`. `config/dependencies.dart` is the only place that picks implementations: `SupabaseClient` as a `Provider`, `AuthRepository` as a `ChangeNotifierProvider`, other repositories as `Provider`, each cast to its interface (`as AuthRepository`). Order matters: a provider can only `context.read()` providers earlier in the list.
-- Pages read repositories with `context.read<T>()` (in callbacks and `initState`), never through constructors. Only services and repositories are provided; view models are not (they are created where a screen is built, #24).
+- Each screen has one view model. Screens take it through the constructor (`LoginScreen({required this.viewModel})`) and hold no logic: no repository calls, no `try/catch`, no `switch` on a `Result`. They rebuild with `ListenableBuilder` on the view model or one of its commands.
+- View models are not provided. They are created wherever a screen is built, with repositories from `context.read<T>()`: in `MainApp` for the first screen, and in `LoginScreen` when it navigates to `HomeScreen`. #23 moves this into the route builders.
+- A view model takes its repositories as named constructor parameters stored in private fields (`HomeViewModel({required this._eventsRepository})`; callers still write `eventsRepository:`). It exposes each user action as a command from `utils/command.dart`. A view model that holds data a screen shows extends `ChangeNotifier` (`HomeViewModel`); one that only exposes commands is a plain class (`LoginViewModel`).
+- `utils/command.dart` follows compass_app's `Command0`/`Command1`, renamed: `Command` (action with no argument) and `CommandWithArg` (one argument; pass a record for several, e.g. `(email, password)`). The shared base `_Command` is private, and `result` is typed `Result<T>?` (compass uses `Result?`). A command ignores `execute()` while it is already running, so it returns at once without waiting for the earlier run.
+- Screens react to a finished command by listening to it: `addListener` in `initState`, swap in `didUpdateWidget`, `removeListener` in `dispose`. Check `completed` / `error`, then `clearResult()` so the result is handled once (see `LoginScreen._onResult`).
+- Error text never reaches the screen. A screen shows its own fixed message when a command's `error` is true and never reads `result.error`; view models log the error with `debugPrint`. A failed login shows nothing yet (#20).
 - `MainApp` reads `isAuthenticated` once at startup, so it does not react to login/logout; the go_router redirect in #23 takes that over.
-- Repositories return `Result<T>` instead of throwing, and catch `on Exception` only, so Dart `Error`s (bugs) still surface. Failures Supabase reports become app types (`AuthFailure`), so the UI never sees a Supabase type. Pages `switch` on the `Result`.
-- Screen logic (calling repositories, loading state) still lives in each page's `State` class.
-- Tests use the fakes, never Supabase. Each fake takes its canned answer in the constructor: `FakeAuthRepository()` logs in, `FakeAuthRepository(loginResult: const Result.error(AuthFailure('...')))` fails; `FakeEventsRepository()` returns no events, or pass `result:`. Widget tests wrap the screen in `MultiProvider` with fakes via `.value`, typed by interface: `ChangeNotifierProvider<AuthRepository>.value(value: FakeAuthRepository())`. Each test covers its own screen's behaviour only (e.g. the login test checks navigation, not what `HomePage` shows).
+- Repositories return `Result<T>` instead of throwing, and catch `on Exception` only, so Dart `Error`s (bugs) still surface. Failures Supabase reports become app types (`AuthFailure`), so the UI never sees a Supabase type. View models `switch` on the `Result`.
+- Tests use the fakes, never Supabase. Each fake takes its canned answer in the constructor: `FakeAuthRepository()` logs in, `FakeAuthRepository(loginResult: const Result.error(AuthFailure('...')))` fails; `FakeEventsRepository()` returns no events, or pass `result:`. `FakeEventsRepository.fetchCount` counts calls (e.g. to check a retry reloaded).
+- View model tests are plain `test`s that build the view model with fakes and `await` its commands. `HomeViewModel` starts `load` in its constructor, so its tests wait with `await pumpEventQueue()`.
+- Widget tests build the screen with a view model made from fakes: `LoginScreen(viewModel: LoginViewModel(authRepository: FakeAuthRepository()))`. Wrap it in `Provider<T>.value` (typed by interface) only for repositories the screen reads with `context.read`, e.g. `EventsRepository` for the `HomeViewModel` that `LoginScreen` builds on navigation. Each test covers its own screen's behaviour only (e.g. the login test checks navigation, not what `HomeScreen` shows).
 - Import app files with `package:app/...`, not relative paths. The exception is tests importing from top-level `testing/` (e.g. fakes): `package:app/` only covers `lib/`, so use a relative path like `'../testing/fakes/repositories/fake_auth_repository.dart'`, as compass_app does.
 - `supabase_flutter` 2.18+ takes `publishableKey`; `anonKey` is deprecated.
 - The Android emulator reaches the host's local Supabase at `http://10.0.2.2:54321`; iOS simulator, macOS and web use `http://127.0.0.1:54321`.
