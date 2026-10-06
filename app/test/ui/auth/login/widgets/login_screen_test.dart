@@ -1,23 +1,25 @@
 import 'package:app/data/repositories/auth/auth_repository.dart';
 import 'package:app/data/repositories/events/events_repository.dart';
-import 'package:app/ui/auth/login_page.dart';
+import 'package:app/ui/auth/login/view_models/login_viewmodel.dart';
+import 'package:app/ui/auth/login/widgets/login_screen.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
 
-import '../../../testing/fakes/repositories/fake_auth_repository.dart';
-import '../../../testing/fakes/repositories/fake_events_repository.dart';
+import '../../../../../testing/fakes/repositories/fake_auth_repository.dart';
+import '../../../../../testing/fakes/repositories/fake_events_repository.dart';
 
 void main() {
   Widget app(AuthRepository authRepository) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<AuthRepository>.value(value: authRepository),
-        Provider<EventsRepository>.value(value: FakeEventsRepository()),
-      ],
-      child: const MaterialApp(home: LoginPage()),
+    return Provider<EventsRepository>.value(
+      value: FakeEventsRepository(),
+      child: MaterialApp(
+        home: LoginScreen(
+          viewModel: LoginViewModel(authRepository: authRepository),
+        ),
+      ),
     );
   }
 
@@ -36,14 +38,12 @@ void main() {
 
   testWidgets('successful login navigates to home', (tester) async {
     await tester.pumpWidget(app(FakeAuthRepository()));
-
     await logIn(tester);
-
     expect(find.byType(HomePage), findsOneWidget);
-    expect(find.byType(LoginPage), findsNothing);
+    expect(find.byType(LoginScreen), findsNothing);
   });
 
-  testWidgets('failed login stays on the login page', (tester) async {
+  testWidgets('failed login stays on the login screen', (tester) async {
     await tester.pumpWidget(
       app(
         FakeAuthRepository(
@@ -53,10 +53,8 @@ void main() {
         ),
       ),
     );
-
     await logIn(tester);
-
-    expect(find.byType(LoginPage), findsOneWidget);
+    expect(find.byType(LoginScreen), findsOneWidget);
     expect(find.byType(HomePage), findsNothing);
   });
 }

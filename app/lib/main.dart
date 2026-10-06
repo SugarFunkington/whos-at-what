@@ -1,6 +1,7 @@
 import 'package:app/config/dependencies.dart';
 import 'package:app/data/repositories/auth/auth_repository.dart';
-import 'package:app/ui/auth/login_page.dart';
+import 'package:app/ui/auth/login/view_models/login_viewmodel.dart';
+import 'package:app/ui/auth/login/widgets/login_screen.dart';
 import 'package:app/ui/calendar/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +26,13 @@ class MainApp extends StatelessWidget {
     final isAuthenticated = context.read<AuthRepository>().isAuthenticated;
 
     return MaterialApp(
-      home: isAuthenticated ? const HomePage() : const LoginPage(),
+      home: isAuthenticated
+          ? const HomePage()
+          : LoginScreen(
+              viewModel: LoginViewModel(
+                authRepository: context.read<AuthRepository>(),
+              ),
+            ),
     );
   }
 }
