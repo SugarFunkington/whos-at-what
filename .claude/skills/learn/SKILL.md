@@ -1,31 +1,35 @@
 ---
 name: learn
-description: Teach the next step as fully commented code for the user to type in themselves.
+description: Teach the next step by making the changes and leaving key lines marked TYPE CODE HERE for the user to type.
 ---
 
 # Learn
 
-The user is learning Flutter by building this app. This is a **lesson**: you teach the step, the user types the code. Leave the repo untouched; the only files you write go in your scratchpad.
+The user is learning Flutter by building this app. This is a **lesson**: you make the changes in the repo, and leave the lines that carry the step's main concept blank for the user to type. Typing those lines is how the concept sticks.
 
 Topic: $ARGUMENTS (if empty, take the next unchecked task on the current ticket).
 
 ## Steps
 
-1. **Place the step.** Read the ticket (`gh issue view <n>`) and the files the step touches. Done when you can name the one task this lesson covers and every file it creates or changes.
+1. **Place the step.** Read the ticket (`gh issue view <n>`) and the files the step touches. Done when you can name the task(s) this lesson covers and every file it creates, moves or changes.
 
-2. **Prove the code.** Copy `app/` (`lib/`, `pubspec.*`, `analysis_options.yaml`, plus whatever else the step touches) into your scratchpad, write the code there, and run `flutter analyze` and a small throwaway test. Follow the patterns in compass_app (fetch it with `gh api repos/flutter/samples/contents/compass_app/app/...`). Done when analyze is clean and the test passes. A lesson only teaches code that compiles.
+2. **Prove the code.** Copy `app/` (`lib/`, `test/`, `testing/`, `pubspec.*`, `analysis_options.yaml`) into your scratchpad, write the complete change there, and run `flutter analyze` and `flutter test`. Follow the patterns in compass_app (fetch it with `gh api repos/flutter/samples/contents/compass_app/app/...`). Done when analyze is clean and every test passes.
 
-3. **Write the lesson**, in this order:
-   - **Overview:** 2–4 sentences on what the step is and why it matters for the architecture.
-   - **Where the files go:** a short tree of the new or changed paths.
-   - **Code blocks per file**, headed `## path/to/file.dart (new file)` or `(changed)`. Explain each Dart/Flutter concept (keywords like `extends`, `final`, `async`, `@override`) in the comment where it first appears.
-     - **New file:** one complete code block, with a `//` comment above or beside every line saying what it does and why.
-     - **Changed file:** show only the lines that change, plus a line or two of unchanged context so the user can find the spot (e.g. the method signature), marked `// ... unchanged ...` where code is skipped. Comment each changed line with what it now does and *why it's changing*. Show removed lines as `// REMOVED: <old line>` with the reason. Don't reprint or re-explain unchanged code.
-   - **How it's used:** a short commented block showing the code being called, e.g. how a test builds it.
-   - **Gotchas:** anything that breaks a project rule or surprises a newcomer. Give one sentence on why, and say which ticket task should record it.
-   - **Your step:** numbered actions for the user: which files to type, the command to check them (`flutter analyze` / `flutter test` from `app/`), what result to expect, then commit.
+3. **Make the change in the repo.** Read each file first; the user may have started on it. Write the proven version, using `git mv` for moved files, and run analyze and tests again. Then blank the **key lines**: in each file, the one or two lines that carry the step's concept (building a view model and passing it to a screen, running a command, the assertion a test exists for). Plumbing stays filled in: imports, renames, relative paths, formatting. Replace each key line with:
+
+   ```dart
+   // TYPE CODE HERE: <what to write, in words: which class, which argument, what to await or expect>
+   ```
+
+   The hint names the pieces without giving the code. Done when the complete version passed in the repo before blanking, and every file the step touches has its key lines blanked or is pure plumbing.
+
+4. **Write the reply**, short:
+   - **The step:** 1–3 sentences on what it is and why it matters for the architecture.
+   - **Your lines:** each `TYPE CODE HERE`, by file, with the concept it teaches and any Dart/Flutter idea it uses for the first time (`late`, records, `ListenableBuilder`).
+   - **What I changed around them:** one line per file.
+   - **Check it:** `flutter analyze` and `flutter test` from `app/`, the expected test count, and any expected log output. Then commit.
    - **Next:** one line naming the next lesson.
 
-   Done when every new or changed line has a comment and the user could make every change from the lesson alone.
+5. **Stop.** Wait for the user to fill the lines.
 
-4. **Stop.** Wait for the user to type the code and pick the next step.
+6. **Check their work** when they say it's done: run `flutter analyze` and `flutter test`, and compare each filled line with the proven version. Done when you've reported pass/fail and every difference, saying for each whether it's fine (an equivalent spelling) or worth changing, and why.
