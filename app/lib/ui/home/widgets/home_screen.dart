@@ -1,3 +1,4 @@
+import 'package:app/ui/core/date_format_day.dart';
 import 'package:app/ui/core/spacing.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Today')),
+      appBar: AppBar(title: Text(dateFormatDay(viewModel.today))),
       body: ListenableBuilder(
         listenable: viewModel.load,
         builder: (context, child) {

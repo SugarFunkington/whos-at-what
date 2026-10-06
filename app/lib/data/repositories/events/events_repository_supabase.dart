@@ -9,10 +9,9 @@ class EventsRepositorySupabase implements EventsRepository {
   final SupabaseClient _client;
 
   @override
-  Future<Result<List<Event>>> fetchTodaysEvents() async {
-    final now = DateTime.now();
-    final start = DateTime(now.year, now.month, now.day);
-    final end = DateTime(now.year, now.month, now.day + 1);
+  Future<Result<List<Event>>> fetchEvents(DateTime day) async {
+    final start = DateTime(day.year, day.month, day.day);
+    final end = DateTime(day.year, day.month, day.day + 1);
 
     try {
       final rows = await _client

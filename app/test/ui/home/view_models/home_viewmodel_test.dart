@@ -24,6 +24,18 @@ void main() {
     expect(viewModel.events, [event]);
   });
 
+  test('loads the events for its day', () async {
+    final eventsRepository = FakeEventsRepository();
+    HomeViewModel(
+      eventsRepository: eventsRepository,
+      today: DateTime(2026, 10, 26),
+    );
+
+    await pumpEventQueue();
+
+    expect(eventsRepository.lastDay, DateTime(2026, 10, 26));
+  });
+
   test('load errors when the repository fails', () async {
     final viewModel = HomeViewModel(
       eventsRepository: FakeEventsRepository(

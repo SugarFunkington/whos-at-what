@@ -7,6 +7,18 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../../../testing/fakes/repositories/fake_events_repository.dart';
 
 void main() {
+  testWidgets('app bar shows the date', (tester) async {
+    final viewModel = HomeViewModel(
+      eventsRepository: FakeEventsRepository(),
+      today: DateTime(2026, 10, 26),
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(viewModel: viewModel)),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('Monday, 26th October'), findsOneWidget);
+  });
+
   testWidgets('failed load shows a friendly message, not the exception', (
     tester,
   ) async {

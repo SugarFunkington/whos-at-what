@@ -8,10 +8,12 @@ class FakeEventsRepository implements EventsRepository {
   final Result<List<Event>> result;
 
   int fetchCount = 0;
+  DateTime? lastDay;
 
   @override
-  Future<Result<List<Event>>> fetchTodaysEvents() async {
+  Future<Result<List<Event>>> fetchEvents(DateTime day) async {
     fetchCount++;
+    lastDay = day;
     return result;
   }
 }
