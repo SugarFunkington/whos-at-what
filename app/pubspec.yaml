@@ -91,3 +91,9 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  fonts:
+    - family: Quicksand
+      fonts:
+        # Variable font: one file covers weights 300-700 via fontWeight.
+        - asset: assets/fonts/quicksand/Quicksand-VariableFont_wght.ttf
