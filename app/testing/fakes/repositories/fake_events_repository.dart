@@ -7,6 +7,11 @@ class FakeEventsRepository implements EventsRepository {
 
   final Result<List<Event>> result;
 
+  int fetchCount = 0;
+
   @override
-  Future<Result<List<Event>>> fetchTodaysEvents() async => result;
+  Future<Result<List<Event>>> fetchTodaysEvents() async {
+    fetchCount++;
+    return result;
+  }
 }

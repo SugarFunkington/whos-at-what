@@ -1,7 +1,10 @@
+import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/auth/login/view_models/login_viewmodel.dart';
-import 'package:app/ui/calendar/home_page.dart';
 import 'package:app/ui/core/spacing.dart';
+import 'package:app/ui/home/view_models/home_viewmodel.dart';
+import 'package:app/ui/home/widgets/home_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, required this.viewModel});
@@ -41,7 +44,13 @@ class _LoginScreenState extends State<LoginScreen> {
     if (widget.viewModel.login.completed) {
       widget.viewModel.login.clearResult();
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (context) => const HomePage()),
+        MaterialPageRoute(
+          builder: (context) => HomeScreen(
+            viewModel: HomeViewModel(
+              eventsRepository: context.read<EventsRepository>(),
+            ),
+          ),
+        ),
       );
     }
 

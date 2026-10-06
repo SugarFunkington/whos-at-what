@@ -2,7 +2,7 @@ import 'package:app/data/repositories/auth/auth_repository.dart';
 import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/ui/auth/login/view_models/login_viewmodel.dart';
 import 'package:app/ui/auth/login/widgets/login_screen.dart';
-import 'package:app/ui/calendar/home_page.dart';
+import 'package:app/ui/home/widgets/home_screen.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -39,7 +39,7 @@ void main() {
   testWidgets('successful login navigates to home', (tester) async {
     await tester.pumpWidget(app(FakeAuthRepository()));
     await logIn(tester);
-    expect(find.byType(HomePage), findsOneWidget);
+    expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(LoginScreen), findsNothing);
   });
 
@@ -55,6 +55,6 @@ void main() {
     );
     await logIn(tester);
     expect(find.byType(LoginScreen), findsOneWidget);
-    expect(find.byType(HomePage), findsNothing);
+    expect(find.byType(HomeScreen), findsNothing);
   });
 }
