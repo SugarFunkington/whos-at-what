@@ -45,44 +45,55 @@ values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Ella',     '#EC4899', null),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Stranger', '#10B981', '22222222-2222-2222-2222-222222222222');
 
--- Categories: one of Test Family's own (no starter list yet)
-insert into public.categories (id, family_id, name)
-values ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Hurling');
+-- Categories: Test Family's own (no starter list yet), each with an emoji
+insert into public.categories (id, family_id, name, emoji)
+values
+  ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Hurling',  '🏑'),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Swimming', '🏊'),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc2', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Dinner',   '🍲'),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc3', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Chores',   '🗑️');
 
 -- Events ----------------------------------------------------------------------
--- Times are "today" in the family's timezone, so there's always something
--- on today's calendar after a reset.
-insert into public.events (id, family_id, title, category_id, starts_at, ends_at, all_day, repeat, notes, created_by)
-values
-  -- Weekly swimming, Ella
-  ('e0000000-0000-0000-0000-000000000001', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Swimming',
-   null,
-   (current_date + time '16:00') at time zone 'Europe/Dublin',
-   (current_date + time '17:00') at time zone 'Europe/Dublin',
-   false, 'FREQ=WEEKLY', 'Bring goggles', '11111111-1111-1111-1111-111111111111'),
-  -- One-off slow cooker dinner, Parent cooking
-  ('e0000000-0000-0000-0000-000000000002', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Beef stew',
-   null,
-   (current_date + time '18:00') at time zone 'Europe/Dublin',
-   (current_date + time '19:00') at time zone 'Europe/Dublin',
-   false, null, null, '11111111-1111-1111-1111-111111111111'),
-  -- Weekly bins at 6am, no end time, nobody attached = whole family
-  ('e0000000-0000-0000-0000-000000000003', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Bins out',
-   null,
-   (current_date + time '06:00') at time zone 'Europe/Dublin',
-   null,
-   false, 'FREQ=WEEKLY', null, '11111111-1111-1111-1111-111111111111'),
-  -- Other Family's event, which Test Family must never see
-  ('e0000000-0000-0000-0000-000000000004', 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Football',
-   null,
-   (current_date + time '10:00') at time zone 'Europe/Dublin',
-   (current_date + time '11:00') at time zone 'Europe/Dublin',
-   false, null, null, '22222222-2222-2222-2222-222222222222');
+-- The app doesn't expand repeating events yet (#4), so instead of one row per
+-- event, each one gets a copy for every day from 30 days ago to a year ahead.
+-- Today always has events without rebuilding the database (until a year after
+-- the last reset). The copies are one-offs (repeat empty); revisit with #4.
+insert into public.events (family_id, title, category_id, location, starts_at, ends_at, notes, created_by)
+select e.family_id, e.title, e.category_id, e.location,
+       (g.day::date + e.starts) at time zone 'Europe/Dublin',
+       (g.day::date + e.ends)   at time zone 'Europe/Dublin',
+       e.notes, e.created_by
+-- ::date matters: generate_series returns timestamptz here, and converting
+-- that to Dublin time again would shift every event by the UTC offset.
+from generate_series(current_date - 30, current_date + 365, interval '1 day') as g(day)
+cross join (values
+  -- Swimming, Ella
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, 'Swimming',
+   'cccccccc-cccc-cccc-cccc-ccccccccccc1'::uuid, 'Leisure Centre, Main St',
+   time '16:00', time '17:00', 'Bring goggles', '11111111-1111-1111-1111-111111111111'::uuid),
+  -- Slow cooker dinner, Parent cooking
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Beef stew',
+   'cccccccc-cccc-cccc-cccc-ccccccccccc2', 'Home',
+   time '18:00', time '19:00', null, '11111111-1111-1111-1111-111111111111'),
+  -- Bins at 6am, no end time, nobody attached = whole family
+  ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Bins out',
+   'cccccccc-cccc-cccc-cccc-ccccccccccc3', 'Home',
+   time '06:00', null, null, '11111111-1111-1111-1111-111111111111'),
+  -- Other Family's event, which Test Family must never see. No category or
+  -- location, so the "empty" case has data too.
+  ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Football',
+   null, null,
+   time '10:00', time '11:00', null, '22222222-2222-2222-2222-222222222222')
+) as e(family_id, title, category_id, location, starts, ends, notes, created_by);
 
 -- Who each event is for (Bins out has no rows = whole family)
 insert into public.event_members (event_id, member_id)
-select 'e0000000-0000-0000-0000-000000000001'::uuid, id from public.members where display_name = 'Ella'
-union all
-select 'e0000000-0000-0000-0000-000000000002'::uuid, id from public.members where display_name = 'Parent'
-union all
-select 'e0000000-0000-0000-0000-000000000004'::uuid, id from public.members where display_name = 'Stranger';
+select e.id, m.id
+from public.events e
+join public.members m
+  on m.family_id = e.family_id
+ and m.display_name = case e.title
+                        when 'Swimming'  then 'Ella'
+                        when 'Beef stew' then 'Parent'
+                        when 'Football'  then 'Stranger'
+                      end;

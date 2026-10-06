@@ -109,14 +109,14 @@ check("Not logged in: can't read events", s, 401)
 
 # --- Writing that should work -----------------------------------------------
 print("\nWriting (should be allowed)")
-s, rows = call("POST", "/rest/v1/categories", parent, {"family_id": FAMILY_A, "name": f"Scouts {RUN}"})
-check("Parent adds own family category", s, 201)
+s, rows = call("POST", "/rest/v1/categories", parent, {"family_id": FAMILY_A, "name": f"Scouts {RUN}", "emoji": "⛺"})
+check("Parent adds own family category, with an emoji", s, 201)
 category_id = rows[0]["id"] if s == 201 else None
 
 s, rows = call("POST", "/rest/v1/events", parent, {
-    "family_id": FAMILY_A, "title": f"Gala {RUN}", "category_id": category_id,
+    "family_id": FAMILY_A, "title": f"Gala {RUN}", "category_id": category_id, "location": "Leisure Centre",
     "starts_at": "2026-10-03T09:00:00Z", "ends_at": "2026-10-03T12:00:00Z"})
-check("Parent adds event to own family", s, 201)
+check("Parent adds event to own family, with a location", s, 201)
 event = rows[0] if s == 201 else {}
 
 s, rows = call("GET", "/rest/v1/members?select=id&display_name=eq.Ella", parent)
@@ -169,6 +169,10 @@ check("Repeat must be daily/weekly/monthly", s, 400)
 
 s, _ = call("POST", "/rest/v1/categories", parent, {"family_id": FAMILY_A, "name": "hurling"})
 check("No duplicate category names (case-insensitive)", s, 409)
+
+s, _ = call("POST", "/rest/v1/events", parent, {
+    "family_id": FAMILY_A, "title": "Blank place", "location": "  ", "starts_at": "2026-10-03T10:00:00Z"})
+check("Location can't be blank (leave it empty instead)", s, 400)
 
 # --- Tidy up what this run created ------------------------------------------
 call("DELETE", f"/rest/v1/events?id=eq.{event.get('id')}", parent)
