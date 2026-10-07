@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 class MemberAvatar extends StatelessWidget {
   const MemberAvatar({super.key, required this.member});
 
+  static const radius = 16.0;
+
   final Member member;
 
   @override
@@ -21,13 +23,33 @@ class MemberAvatar extends StatelessWidget {
       label: member.displayName,
       excludeSemantics: true,
       child: CircleAvatar(
-        radius: 16,
+        radius: radius,
         backgroundColor: background,
         foregroundColor: foreground,
         child: Text(
           _displayLetter(member.displayName),
           style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
         ),
+      ),
+    );
+  }
+}
+
+/// Stands in for everyone on a whole-family event.
+class FamilyAvatar extends StatelessWidget {
+  const FamilyAvatar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: 'Whole family',
+      excludeSemantics: true,
+      child: CircleAvatar(
+        radius: MemberAvatar.radius,
+        backgroundColor: colorScheme.secondaryContainer,
+        foregroundColor: colorScheme.onSecondaryContainer,
+        child: const Icon(Icons.groups, size: 18),
       ),
     );
   }

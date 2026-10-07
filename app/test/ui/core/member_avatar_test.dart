@@ -70,4 +70,15 @@ void main() {
     expect(find.bySemanticsLabel('Ell'), findsNothing);
     semantics.dispose();
   });
+
+  testWidgets('family avatar is read as the whole family', (tester) async {
+    final semantics = tester.ensureSemantics();
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: FamilyAvatar())),
+    );
+
+    expect(find.byIcon(Icons.groups), findsOneWidget);
+    expect(find.bySemanticsLabel('Whole family'), findsOneWidget);
+    semantics.dispose();
+  });
 }

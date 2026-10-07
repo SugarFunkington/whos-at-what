@@ -2,6 +2,7 @@ import 'package:app/ui/core/date_format_day.dart';
 import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/core/spacing.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
+import 'package:app/ui/home/widgets/event_row.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -55,16 +56,15 @@ class HomeScreen extends StatelessWidget {
           listenable: viewModel,
           builder: (context, _) {
             final events = viewModel.events;
-            return ListView.builder(
+            return ListView.separated(
               itemCount: events.length,
+              separatorBuilder: (context, index) => const Divider(height: 1),
               itemBuilder: (context, index) {
                 final event = events[index];
-                return ListTile(
+                return EventRow(
                   key: ValueKey(event.id),
-                  title: Text(event.title),
-                  subtitle: Text(
-                    TimeOfDay.fromDateTime(event.startsAt).format(context),
-                  ),
+                  event: event,
+                  members: viewModel.membersFor(event),
                 );
               },
             );

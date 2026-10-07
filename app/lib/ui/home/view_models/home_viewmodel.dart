@@ -31,9 +31,17 @@ class HomeViewModel extends ChangeNotifier {
   /// Members with something on today. A whole-family event (no members)
   /// counts as everyone.
   List<Member> get membersOnToday {
-    if (_events.any((event) => event.memberIds.isEmpty)) return _members;
+    if (_events.any((event) => event.isWholeFamily)) return _members;
     final ids = {for (final event in _events) ...event.memberIds};
     return _members.where((member) => ids.contains(member.id)).toList();
+  }
+
+  /// The members [event] is for, in family order. Empty for a whole-family
+  /// event.
+  List<Member> membersFor(Event event) {
+    return _members
+        .where((member) => event.memberIds.contains(member.id))
+        .toList();
   }
 
   Future<Result<void>> _load() async {
@@ -45,7 +53,12 @@ class HomeViewModel extends ChangeNotifier {
 
     switch (eventsResult) {
       case Ok():
-        _events = eventsResult.value;
+        // All-day events first; otherwise keep the repository's time order.
+        final events = eventsResult.value;
+        _events = [
+          ...events.where((event) => event.allDay),
+          ...events.where((event) => !event.allDay),
+        ];
       case Error():
         debugPrint('Failed to load events: ${eventsResult.error}');
         return Result.error(eventsResult.error);

@@ -24,6 +24,8 @@ class Event {
   /// Who the event is for. Empty = the whole family.
   final List<String> memberIds;
 
+  bool get isWholeFamily => memberIds.isEmpty;
+
   factory Event.fromJson(Map<String, dynamic> json) {
     final duration = json['duration'] as String?;
     return Event(

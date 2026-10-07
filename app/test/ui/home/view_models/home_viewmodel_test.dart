@@ -78,6 +78,44 @@ void main() {
     expect(viewModel.members, isEmpty);
   });
 
+  test('sorts all-day events to the top, keeping time order', () async {
+    final bins = Event(
+      id: '1',
+      title: 'Bins out',
+      startsAt: DateTime(2026, 10, 5, 6),
+    );
+    final birthday = Event(
+      id: '2',
+      title: 'Birthday',
+      startsAt: DateTime(2026, 10, 5),
+      allDay: true,
+    );
+    final swimming = Event(
+      id: '3',
+      title: 'Swimming',
+      startsAt: DateTime(2026, 10, 5, 16),
+    );
+    final viewModel = viewModelWith([bins, birthday, swimming]);
+
+    await pumpEventQueue();
+
+    expect(viewModel.events, [birthday, bins, swimming]);
+  });
+
+  test('membersFor is the event\'s members, in family order', () async {
+    final hurling = Event(
+      id: '1',
+      title: 'Hurling',
+      startsAt: DateTime(2026, 10, 5, 18),
+      memberIds: ['jack', 'parent'],
+    );
+    final viewModel = viewModelWith([hurling]);
+
+    await pumpEventQueue();
+
+    expect(viewModel.membersFor(hurling), [parent, jack]);
+  });
+
   group('membersOnToday', () {
     test('is the members on any of today\'s events, in family order', () async {
       final viewModel = viewModelWith([
