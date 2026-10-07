@@ -16,7 +16,16 @@ class EventsRepositorySupabase implements EventsRepository {
     try {
       final rows = await _client
           .from('events')
-          .select('id, title, starts_at')
+          .select('''
+              id,
+              title,
+              starts_at,
+              all_day,
+              duration,
+              location,
+              emoji,
+              event_members (member_id)
+          ''')
           .gte('starts_at', start.toUtc().toIso8601String())
           .lt('starts_at', end.toUtc().toIso8601String())
           .order('starts_at', ascending: true);
