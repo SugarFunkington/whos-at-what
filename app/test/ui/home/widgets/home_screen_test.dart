@@ -1,3 +1,6 @@
+import 'package:app/domain/models/event.dart';
+import 'package:app/domain/models/member.dart';
+import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:app/ui/home/widgets/home_screen.dart';
 import 'package:app/utils/result.dart';
@@ -59,5 +62,36 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(eventsRepository.fetchCount, 2);
+  });
+
+  testWidgets('app bar shows the members with something on today', (
+    tester,
+  ) async {
+    final viewModel = HomeViewModel(
+      eventsRepository: FakeEventsRepository(
+        result: Result.ok([
+          Event(
+            id: '1',
+            title: 'Swimming',
+            startsAt: DateTime(2026, 10, 26, 16),
+            memberIds: ['ella'],
+          ),
+        ]),
+      ),
+      membersRepository: FakeMembersRepository(
+        result: const Result.ok([
+          Member(id: 'parent', displayName: 'Parent'),
+          Member(id: 'ella', displayName: 'Ella'),
+        ]),
+      ),
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(viewModel: viewModel)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MemberAvatar), findsOneWidget);
+    expect(find.text('E'), findsOneWidget);
+    expect(find.text('P'), findsNothing);
   });
 }

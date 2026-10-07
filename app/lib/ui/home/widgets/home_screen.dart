@@ -1,4 +1,5 @@
 import 'package:app/ui/core/date_format_day.dart';
+import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/core/spacing.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +12,22 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text(dateFormatDay(viewModel.today))),
+      appBar: AppBar(
+        title: Text(dateFormatDay(viewModel.today)),
+        actions: [
+          ListenableBuilder(
+            listenable: viewModel,
+            builder: (context, _) => Row(
+              spacing: 4,
+              children: [
+                for (final member in viewModel.membersOnToday)
+                  MemberAvatar(member: member),
+              ],
+            ),
+          ),
+          const SizedBox(width: 12),
+        ],
+      ),
       body: ListenableBuilder(
         listenable: viewModel.load,
         builder: (context, child) {
