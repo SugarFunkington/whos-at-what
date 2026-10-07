@@ -22,7 +22,10 @@ GoRouter router(AuthRepository authRepository) => GoRouter(
     GoRoute(
       path: Routes.home,
       builder: (context, state) => HomeScreen(
-        viewModel: HomeViewModel(eventsRepository: context.read()),
+        viewModel: HomeViewModel(
+          eventsRepository: context.read(),
+          membersRepository: context.read(),
+        ),
       ),
     ),
   ],

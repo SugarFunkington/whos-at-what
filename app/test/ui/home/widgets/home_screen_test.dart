@@ -5,11 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../../testing/fakes/repositories/fake_events_repository.dart';
+import '../../../../testing/fakes/repositories/fake_members_repository.dart';
 
 void main() {
   testWidgets('app bar shows the date', (tester) async {
     final viewModel = HomeViewModel(
       eventsRepository: FakeEventsRepository(),
+      membersRepository: FakeMembersRepository(),
       today: DateTime(2026, 10, 26),
     );
     await tester.pumpWidget(
@@ -26,6 +28,7 @@ void main() {
       eventsRepository: FakeEventsRepository(
         result: Result.error(Exception('PostgrestException secret text')),
       ),
+      membersRepository: FakeMembersRepository(),
     );
     await tester.pumpWidget(
       MaterialApp(home: HomeScreen(viewModel: viewModel)),
@@ -43,7 +46,10 @@ void main() {
     await tester.pumpWidget(
       MaterialApp(
         home: HomeScreen(
-          viewModel: HomeViewModel(eventsRepository: eventsRepository),
+          viewModel: HomeViewModel(
+            eventsRepository: eventsRepository,
+            membersRepository: FakeMembersRepository(),
+          ),
         ),
       ),
     );

@@ -1,5 +1,6 @@
 import 'package:app/data/repositories/auth/auth_repository.dart';
 import 'package:app/data/repositories/events/events_repository.dart';
+import 'package:app/data/repositories/members/members_repository.dart';
 import 'package:app/routing/router.dart';
 import 'package:app/ui/auth/login/widgets/login_screen.dart';
 import 'package:app/ui/home/widgets/home_screen.dart';
@@ -9,6 +10,7 @@ import 'package:provider/provider.dart';
 
 import '../../testing/fakes/repositories/fake_auth_repository.dart';
 import '../../testing/fakes/repositories/fake_events_repository.dart';
+import '../../testing/fakes/repositories/fake_members_repository.dart';
 
 void main() {
   Widget app(AuthRepository authRepository) {
@@ -16,6 +18,7 @@ void main() {
       providers: [
         ChangeNotifierProvider<AuthRepository>.value(value: authRepository),
         Provider<EventsRepository>.value(value: FakeEventsRepository()),
+        Provider<MembersRepository>.value(value: FakeMembersRepository()),
       ],
       child: MaterialApp.router(routerConfig: router(authRepository)),
     );

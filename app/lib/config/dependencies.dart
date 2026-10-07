@@ -2,6 +2,8 @@ import 'package:app/data/repositories/auth/auth_repository.dart';
 import 'package:app/data/repositories/auth/auth_repository_supabase.dart';
 import 'package:app/data/repositories/events/events_repository.dart';
 import 'package:app/data/repositories/events/events_repository_supabase.dart';
+import 'package:app/data/repositories/members/members_repository.dart';
+import 'package:app/data/repositories/members/members_repository_supabase.dart';
 import 'package:provider/provider.dart';
 import 'package:provider/single_child_widget.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,6 +18,10 @@ List<SingleChildWidget> get providers {
     Provider(
       create: (context) =>
           EventsRepositorySupabase(context.read()) as EventsRepository,
+    ),
+    Provider(
+      create: (context) =>
+          MembersRepositorySupabase(context.read()) as MembersRepository,
     ),
   ];
 }
