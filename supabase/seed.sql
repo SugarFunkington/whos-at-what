@@ -45,46 +45,56 @@ values
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Ella',     '#EC4899', null),
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Stranger', '#10B981', '22222222-2222-2222-2222-222222222222');
 
--- Categories: Test Family's own (no starter list yet), each with an emoji
-insert into public.categories (id, family_id, name, emoji)
+-- Event templates ---------------------------------------------------------------
+-- One starter (family empty), for checking starters stay read-only and can't
+-- have members. The real starter list is #10. Test Family has its own
+-- "Swimming" too: titles don't have to be unique.
+insert into public.event_templates (id, family_id, title, emoji, location, start_time, duration)
 values
-  ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Hurling',  '🏑'),
-  ('cccccccc-cccc-cccc-cccc-ccccccccccc1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Swimming', '🏊'),
-  ('cccccccc-cccc-cccc-cccc-ccccccccccc2', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Dinner',   '🍲'),
-  ('cccccccc-cccc-cccc-cccc-ccccccccccc3', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Chores',   '🗑️');
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc0', null,                                   'Swimming', '🏊', null,                      null,          null),
+  ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Hurling',  '🏑', null,                      null,          null),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc1', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Swimming', '🏊', 'Leisure Centre, Main St', time '16:00', interval '1 hour'),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc2', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Dinner',   '🍲', 'Home',                    time '18:00', interval '1 hour'),
+  ('cccccccc-cccc-cccc-cccc-ccccccccccc3', 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Chores',   '🗑️', 'Home',                    null,          null);
+
+-- Ella goes to Test Family's swimming
+insert into public.event_template_members (event_template_id, member_id)
+select 'cccccccc-cccc-cccc-cccc-ccccccccccc1', id
+from public.members
+where display_name = 'Ella';
 
 -- Events ----------------------------------------------------------------------
 -- The app doesn't expand repeating events yet (#4), so instead of one row per
 -- event, each one gets a copy for every day from 30 days ago to a year ahead.
 -- Today always has events without rebuilding the database (until a year after
 -- the last reset). The copies are one-offs (repeat empty); revisit with #4.
-insert into public.events (family_id, title, category_id, location, starts_at, ends_at, notes, created_by)
-select e.family_id, e.title, e.category_id, e.location,
+-- Emoji and location are copied from the template, as the app will do.
+insert into public.events (family_id, title, event_template_id, emoji, location, starts_at, duration, notes, created_by)
+select e.family_id, e.title, e.event_template_id, e.emoji, e.location,
        (g.day::date + e.starts) at time zone 'Europe/Dublin',
-       (g.day::date + e.ends)   at time zone 'Europe/Dublin',
-       e.notes, e.created_by
+       e.duration, e.notes, e.created_by
 -- ::date matters: generate_series returns timestamptz here, and converting
 -- that to Dublin time again would shift every event by the UTC offset.
 from generate_series(current_date - 30, current_date + 365, interval '1 day') as g(day)
 cross join (values
   -- Swimming, Ella
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa'::uuid, 'Swimming',
-   'cccccccc-cccc-cccc-cccc-ccccccccccc1'::uuid, 'Leisure Centre, Main St',
-   time '16:00', time '17:00', 'Bring goggles', '11111111-1111-1111-1111-111111111111'::uuid),
+   'cccccccc-cccc-cccc-cccc-ccccccccccc1'::uuid, '🏊', 'Leisure Centre, Main St',
+   time '16:00', interval '1 hour', 'Bring goggles', '11111111-1111-1111-1111-111111111111'::uuid),
   -- Slow cooker dinner, Parent cooking
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Beef stew',
-   'cccccccc-cccc-cccc-cccc-ccccccccccc2', 'Home',
-   time '18:00', time '19:00', null, '11111111-1111-1111-1111-111111111111'),
-  -- Bins at 6am, no end time, nobody attached = whole family
+   'cccccccc-cccc-cccc-cccc-ccccccccccc2', '🍲', 'Home',
+   time '18:00', interval '1 hour', null, '11111111-1111-1111-1111-111111111111'),
+  -- Bins at 6am, no duration, nobody attached = whole family
   ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Bins out',
-   'cccccccc-cccc-cccc-cccc-ccccccccccc3', 'Home',
+   'cccccccc-cccc-cccc-cccc-ccccccccccc3', '🗑️', 'Home',
    time '06:00', null, null, '11111111-1111-1111-1111-111111111111'),
-  -- Other Family's event, which Test Family must never see. No category or
-  -- location, so the "empty" case has data too.
+  -- Other Family's event, which Test Family must never see. No template,
+  -- emoji or location, so the "empty" case has data too.
   ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Football',
-   null, null,
-   time '10:00', time '11:00', null, '22222222-2222-2222-2222-222222222222')
-) as e(family_id, title, category_id, location, starts, ends, notes, created_by);
+   null, null, null,
+   time '10:00', interval '1 hour', null, '22222222-2222-2222-2222-222222222222')
+) as e(family_id, title, event_template_id, emoji, location, starts, duration, notes, created_by);
 
 -- Who each event is for (Bins out has no rows = whole family)
 insert into public.event_members (event_id, member_id)

@@ -31,10 +31,13 @@ These live in the migrations; they are summarised here because they are easy to 
 
 - `members.user_id` null = a child with no login.
 - An event with no `event_members` rows is for the whole family.
-- `categories.family_id` null = the shared starter list, visible to every family and read-only to them.
-- For repeating events, `starts_at` / `ends_at` are the first occurrence. `repeat` allows only `FREQ=DAILY|WEEKLY|MONTHLY` (RFC 5545 subset); widen the check when adding features like skip-weeks.
-- `ends_at` is optional (e.g. "Bins out at 6am").
-- `event_members` has no update grant: to change who's at an event, delete and re-insert.
+- An event template holds anything an event can, except the date. `event_templates.family_id` null = a starter template, visible to every family and read-only to them. Titles aren't unique.
+- Creating an event copies its template's values in (`event_template_members` -> `event_members` too). Nothing links live: changing a template never changes existing events.
+- A column added to `events` gets a matching column on `event_templates`, with the same checks.
+- For repeating events, `starts_at` is the first occurrence. `repeat` allows only `FREQ=DAILY|WEEKLY|MONTHLY` (RFC 5545 subset); widen the check when adding features like skip-weeks.
+- `duration` is optional (e.g. "Bins out at 6am") and never negative. There is no `ends_at`.
+- Optional text such as `location` and `emoji` is null when empty, never `''` or spaces.
+- `event_members` and `event_template_members` have no update grant: to change who's at an event, delete and re-insert. Starter templates can't have members.
 - Families default to the `Europe/Dublin` timezone.
 
 ## Flutter app
@@ -86,6 +89,6 @@ test/                            mirrors lib/
 
 ## Where it's heading
 
-v1: calendar day and week views (#2), add/edit events (#3), expand repeating events into dates (#4), create a family and invite a partner (#5), live sync across devices (#6), push notifications (#7), Google/Apple sign-in (#8), a rules-based day-prep summary (#9), starter categories (#10).
+v1: calendar day and week views (#2), add/edit events (#3), expand repeating events into dates (#4), create a family and invite a partner (#5), live sync across devices (#6), push notifications (#7), Google/Apple sign-in (#8), a rules-based day-prep summary (#9), starter templates (#10).
 
 Later: skip weeks of repeating events, roles on event members (e.g. who's driving), quick add (natural language, share sheet, photos), external calendars, weather in day prep, "leave by" reminders.
