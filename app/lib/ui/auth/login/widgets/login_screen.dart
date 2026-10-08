@@ -1,5 +1,5 @@
 import 'package:app/ui/auth/login/view_models/login_viewmodel.dart';
-import 'package:app/ui/core/spacing.dart';
+import 'package:app/ui/core/themes/dimens.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -47,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Log in')),
       body: Padding(
-        padding: pagePadding,
+        padding: Dimens.edgeInsetsScreen,
         child: Column(
           children: [
             TextField(

@@ -92,8 +92,12 @@ flutter:
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
 
+  assets:
+    # Read at startup to show Manrope's licence on Flutter's licence page.
+    - assets/fonts/manrope/OFL.txt
+
   fonts:
-    - family: Quicksand
+    - family: Manrope
       fonts:
-        # Variable font: one file covers weights 300-700 via fontWeight.
-        - asset: assets/fonts/quicksand/Quicksand-VariableFont_wght.ttf
+        # Variable font: one file covers weights 200-800 via fontWeight.
+        - asset: assets/fonts/manrope/Manrope[wght].ttf

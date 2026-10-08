@@ -1,6 +1,6 @@
 import 'package:app/ui/core/date_format_day.dart';
 import 'package:app/ui/core/member_avatar.dart';
-import 'package:app/ui/core/spacing.dart';
+import 'package:app/ui/core/themes/dimens.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:app/ui/home/widgets/event_row.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +37,7 @@ class HomeScreen extends StatelessWidget {
           }
           if (viewModel.load.error) {
             return Padding(
-              padding: pagePadding,
+              padding: Dimens.edgeInsetsScreen,
               child: Column(
                 children: [
                   const Text("Couldn't load today's events."),
