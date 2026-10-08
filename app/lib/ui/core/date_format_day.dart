@@ -3,11 +3,13 @@ import 'package:intl/intl.dart';
 final _dateFormatWeekday = DateFormat('EEEE');
 final _dateFormatMonth = DateFormat('MMMM');
 
-/// Formats a date as a day title, e.g. "Monday, 26th October".
+/// Formats a date as its weekday, e.g. "Monday".
+String dateFormatWeekday(DateTime date) => _dateFormatWeekday.format(date);
+
+/// Formats a date as a day and month, e.g. "26th October".
 String dateFormatDay(DateTime date) {
-  final weekday = _dateFormatWeekday.format(date);
   final month = _dateFormatMonth.format(date);
-  return '$weekday, ${_ordinal(date.day)} $month';
+  return '${_ordinal(date.day)} $month';
 }
 
 String _ordinal(int day) {

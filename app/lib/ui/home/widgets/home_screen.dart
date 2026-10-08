@@ -1,8 +1,7 @@
-import 'package:app/ui/core/date_format_day.dart';
-import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/core/themes/dimens.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:app/ui/home/widgets/event_row.dart';
+import 'package:app/ui/home/widgets/home_header.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -13,62 +12,59 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(dateFormatDay(viewModel.today)),
-        actions: [
-          ListenableBuilder(
-            listenable: viewModel,
-            builder: (context, _) => Row(
-              spacing: 4,
-              children: [
-                for (final member in viewModel.membersOnToday)
-                  MemberAvatar(member: member, size: AvatarSize.large),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-        ],
-      ),
-      body: ListenableBuilder(
-        listenable: viewModel.load,
-        builder: (context, child) {
-          if (viewModel.load.running) {
-            return const Center(child: CircularProgressIndicator());
-          }
-          if (viewModel.load.error) {
-            return Padding(
-              padding: Dimens.edgeInsetsScreen,
-              child: Column(
-                children: [
-                  const Text("Couldn't load today's events."),
-                  const SizedBox(height: 12),
-                  FilledButton(
-                    onPressed: viewModel.load.execute,
-                    child: const Text('Try again'),
-                  ),
-                ],
-              ),
-            );
-          }
-          return child!;
-        },
-        child: ListenableBuilder(
-          listenable: viewModel,
-          builder: (context, _) {
-            final events = viewModel.events;
-            return ListView.separated(
-              itemCount: events.length,
-              separatorBuilder: (context, index) => const Divider(height: 1),
-              itemBuilder: (context, index) {
-                final event = events[index];
-                return EventRow(
-                  key: ValueKey(event.id),
-                  event: event,
-                  members: viewModel.membersFor(event),
-                );
+      // Always built, so the header shows while loading and on error too.
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            HomeHeader(viewModel: viewModel),
+            ListenableBuilder(
+              listenable: viewModel.load,
+              builder: (context, child) {
+                if (viewModel.load.running) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: Dimens.section),
+                    child: Center(child: CircularProgressIndicator()),
+                  );
+                }
+                if (viewModel.load.error) {
+                  return Padding(
+                    padding: Dimens.edgeInsetsScreen,
+                    child: Column(
+                      children: [
+                        const Text("Couldn't load today's events."),
+                        const SizedBox(height: 12),
+                        FilledButton(
+                          onPressed: viewModel.load.execute,
+                          child: const Text('Try again'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return child!;
               },
-            );
-          },
+              child: ListenableBuilder(
+                listenable: viewModel,
+                builder: (context, _) {
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      for (final (index, event)
+                          in viewModel.events.indexed) ...[
+                        if (index > 0) const Divider(height: 1),
+                        EventRow(
+                          key: ValueKey(event.id),
+                          event: event,
+                          members: viewModel.membersFor(event),
+                        ),
+                      ],
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

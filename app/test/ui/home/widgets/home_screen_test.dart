@@ -3,6 +3,7 @@ import 'package:app/domain/models/member.dart';
 import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
 import 'package:app/ui/home/widgets/event_row.dart';
+import 'package:app/ui/home/widgets/home_header.dart';
 import 'package:app/ui/home/widgets/home_screen.dart';
 import 'package:app/utils/result.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,7 @@ import '../../../../testing/fakes/repositories/fake_events_repository.dart';
 import '../../../../testing/fakes/repositories/fake_members_repository.dart';
 
 void main() {
-  testWidgets('app bar shows the date', (tester) async {
+  testWidgets('header shows the weekday and date', (tester) async {
     final viewModel = HomeViewModel(
       eventsRepository: FakeEventsRepository(),
       membersRepository: FakeMembersRepository(),
@@ -22,7 +23,10 @@ void main() {
       MaterialApp(home: HomeScreen(viewModel: viewModel)),
     );
     await tester.pumpAndSettle();
-    expect(find.text('Monday, 26th October'), findsOneWidget);
+    Finder inHeader(Finder finder) =>
+        find.descendant(of: find.byType(HomeHeader), matching: finder);
+    expect(inHeader(find.text('Monday')), findsOneWidget);
+    expect(inHeader(find.text('26th October')), findsOneWidget);
   });
 
   testWidgets('failed load shows a friendly message, not the exception', (
@@ -41,6 +45,7 @@ void main() {
     expect(find.text("Couldn't load today's events."), findsOneWidget);
     expect(find.textContaining("PostgrestException"), findsNothing);
     expect(find.widgetWithText(FilledButton, 'Try again'), findsOneWidget);
+    expect(find.byType(HomeHeader), findsOneWidget);
   });
 
   testWidgets('tapping Try again reloads the events', (tester) async {
@@ -65,7 +70,7 @@ void main() {
     expect(eventsRepository.fetchCount, 2);
   });
 
-  testWidgets('app bar shows the members with something on today', (
+  testWidgets('header shows the members with something on today', (
     tester,
   ) async {
     final viewModel = HomeViewModel(
@@ -91,11 +96,11 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    Finder inAppBar(Finder finder) =>
-        find.descendant(of: find.byType(AppBar), matching: finder);
-    expect(inAppBar(find.byType(MemberAvatar)), findsOneWidget);
-    expect(inAppBar(find.text('E')), findsOneWidget);
-    expect(inAppBar(find.text('P')), findsNothing);
+    Finder inHeader(Finder finder) =>
+        find.descendant(of: find.byType(HomeHeader), matching: finder);
+    expect(inHeader(find.byType(MemberAvatar)), findsOneWidget);
+    expect(inHeader(find.text('E')), findsOneWidget);
+    expect(inHeader(find.text('P')), findsNothing);
   });
 
   testWidgets('shows a row for each event', (tester) async {
