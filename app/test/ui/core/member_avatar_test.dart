@@ -1,5 +1,6 @@
 import 'package:app/domain/models/member.dart';
 import 'package:app/ui/core/member_avatar.dart';
+import 'package:app/ui/core/member_colours.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,13 +8,22 @@ void main() {
   Future<void> pumpAvatar(WidgetTester tester, Member member) {
     return tester.pumpWidget(
       MaterialApp(
-        home: Scaffold(body: MemberAvatar(member: member)),
+        home: Scaffold(
+          body: MemberAvatar(member: member, size: AvatarSize.large),
+        ),
       ),
     );
   }
 
-  CircleAvatar circle(WidgetTester tester) =>
-      tester.widget<CircleAvatar>(find.byType(CircleAvatar));
+  BoxDecoration circle(WidgetTester tester) {
+    final container = tester.widget<Container>(
+      find.descendant(
+        of: find.byType(MemberAvatar),
+        matching: find.byType(Container),
+      ),
+    );
+    return container.decoration! as BoxDecoration;
+  }
 
   testWidgets('shows the first letter of the first name', (tester) async {
     await pumpAvatar(
@@ -24,13 +34,15 @@ void main() {
     expect(find.text('M'), findsOneWidget);
   });
 
-  testWidgets('uses the member colour as the background', (tester) async {
+  testWidgets('rings the member colour around a tint of it', (tester) async {
     await pumpAvatar(
       tester,
       const Member(id: '1', displayName: 'Ella', colour: '#EC4899'),
     );
 
-    expect(circle(tester).backgroundColor, const Color(0xFFEC4899));
+    const pink = Color(0xFFEC4899);
+    expect((circle(tester).border! as Border).top.color, pink);
+    expect(circle(tester).color, tint(pink));
   });
 
   testWidgets('falls back to the theme colour for a bad colour', (
@@ -43,23 +55,15 @@ void main() {
 
     final context = tester.element(find.byType(MemberAvatar));
     expect(
-      circle(tester).backgroundColor,
-      Theme.of(context).colorScheme.primaryContainer,
+      (circle(tester).border! as Border).top.color,
+      Theme.of(context).colorScheme.primary,
     );
   });
 
-  testWidgets('picks readable text for the background', (tester) async {
-    await pumpAvatar(
-      tester,
-      const Member(id: '1', displayName: 'Ella', colour: '#1E3A8A'),
-    );
-    expect(circle(tester).foregroundColor, Colors.white);
+  testWidgets('sizes the circle from the avatar size', (tester) async {
+    await pumpAvatar(tester, const Member(id: '1', displayName: 'Ella'));
 
-    await pumpAvatar(
-      tester,
-      const Member(id: '1', displayName: 'Ella', colour: '#FDE047'),
-    );
-    expect(circle(tester).foregroundColor, Colors.black);
+    expect(tester.getSize(find.byType(MemberAvatar)), const Size(36, 36));
   });
 
   testWidgets('screen readers hear the full name', (tester) async {
@@ -74,7 +78,9 @@ void main() {
   testWidgets('family avatar is read as the whole family', (tester) async {
     final semantics = tester.ensureSemantics();
     await tester.pumpWidget(
-      const MaterialApp(home: Scaffold(body: FamilyAvatar())),
+      const MaterialApp(
+        home: Scaffold(body: FamilyAvatar(size: AvatarSize.small)),
+      ),
     );
 
     expect(find.byIcon(Icons.groups), findsOneWidget);

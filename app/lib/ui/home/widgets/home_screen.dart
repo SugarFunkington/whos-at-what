@@ -22,7 +22,7 @@ class HomeScreen extends StatelessWidget {
               spacing: 4,
               children: [
                 for (final member in viewModel.membersOnToday)
-                  MemberAvatar(member: member),
+                  MemberAvatar(member: member, size: AvatarSize.large),
               ],
             ),
           ),

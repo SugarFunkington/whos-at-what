@@ -48,8 +48,8 @@ class EventRow extends StatelessWidget {
             ),
           ),
           event.isWholeFamily
-              ? const FamilyAvatar()
-              : MemberAvatarStack(members: members),
+              ? const FamilyAvatar(size: AvatarSize.small)
+              : MemberAvatarStack(members: members, size: AvatarSize.small),
         ],
       ),
     );
