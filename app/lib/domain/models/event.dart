@@ -10,6 +10,7 @@ class Event {
     this.duration,
     this.location,
     this.emoji,
+    this.notes,
     this.memberIds = const [],
   });
 
@@ -20,6 +21,7 @@ class Event {
   final Duration? duration;
   final String? location;
   final String? emoji;
+  final String? notes;
 
   /// Who the event is for. Empty = the whole family.
   final List<String> memberIds;
@@ -36,6 +38,7 @@ class Event {
       duration: duration == null ? null : _parseInterval(duration),
       location: json['location'] as String?,
       emoji: json['emoji'] as String?,
+      notes: json['notes'] as String?,
       memberIds: [
         for (final row in json['event_members'] as List)
           row['member_id'] as String,

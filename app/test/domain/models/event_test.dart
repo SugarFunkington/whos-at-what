@@ -11,6 +11,7 @@ void main() {
       'duration': '01:30:00',
       'location': 'Leisure Centre, Main St',
       'emoji': '🏊',
+      'notes': 'Bring goggles',
       'event_members': [
         {'member_id': 'ella'},
         {'member_id': 'parent'},
@@ -21,6 +22,7 @@ void main() {
     expect(event.duration, const Duration(hours: 1, minutes: 30));
     expect(event.location, 'Leisure Centre, Main St');
     expect(event.emoji, '🏊');
+    expect(event.notes, 'Bring goggles');
   });
 
   test('fromJson reads a whole-family event with no extras', () {
@@ -32,6 +34,7 @@ void main() {
       'duration': null,
       'location': null,
       'emoji': null,
+      'notes': null,
       'event_members': [],
     });
 
@@ -39,6 +42,7 @@ void main() {
     expect(event.duration, isNull);
     expect(event.location, isNull);
     expect(event.emoji, isNull);
+    expect(event.notes, isNull);
   });
 
   test('fromJson reads a duration of more than a day', () {

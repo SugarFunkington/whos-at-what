@@ -24,6 +24,7 @@ class EventsRepositorySupabase implements EventsRepository {
               duration,
               location,
               emoji,
+              notes,
               event_members (member_id)
           ''')
           .gte('starts_at', start.toUtc().toIso8601String())

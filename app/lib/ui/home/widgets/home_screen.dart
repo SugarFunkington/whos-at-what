@@ -50,6 +50,7 @@ class HomeScreen extends StatelessWidget {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      _ScheduleHeading(count: viewModel.events.length),
                       for (final (index, event)
                           in viewModel.events.indexed) ...[
                         if (index > 0) const Divider(height: 1),
@@ -66,6 +67,37 @@ class HomeScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// "Today's schedule", with how many events there are on the right.
+class _ScheduleHeading extends StatelessWidget {
+  const _ScheduleHeading({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        Dimens.screenPadding,
+        Dimens.section,
+        Dimens.screenPadding,
+        Dimens.md,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text("Today's schedule", style: textTheme.titleLarge),
+          ),
+          Text(
+            count == 1 ? '$count event' : '$count events',
+            style: textTheme.bodyMedium,
+          ),
+        ],
       ),
     );
   }

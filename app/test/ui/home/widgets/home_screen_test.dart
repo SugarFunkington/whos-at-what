@@ -128,4 +128,65 @@ void main() {
 
     expect(find.byType(EventRow), findsNWidgets(2));
   });
+
+  testWidgets('heading shows how many events there are', (tester) async {
+    final viewModel = HomeViewModel(
+      eventsRepository: FakeEventsRepository(
+        result: Result.ok([
+          Event(
+            id: '1',
+            title: 'Bins out',
+            startsAt: DateTime(2026, 10, 26, 6),
+          ),
+          Event(
+            id: '2',
+            title: 'Swimming',
+            startsAt: DateTime(2026, 10, 26, 16),
+          ),
+        ]),
+      ),
+      membersRepository: FakeMembersRepository(),
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(viewModel: viewModel)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text("Today's schedule"), findsOneWidget);
+    expect(find.text('2 events'), findsOneWidget);
+  });
+
+  testWidgets('heading says "1 event" for a single event', (tester) async {
+    final viewModel = HomeViewModel(
+      eventsRepository: FakeEventsRepository(
+        result: Result.ok([
+          Event(
+            id: '1',
+            title: 'Bins out',
+            startsAt: DateTime(2026, 10, 26, 6),
+          ),
+        ]),
+      ),
+      membersRepository: FakeMembersRepository(),
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(viewModel: viewModel)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 event'), findsOneWidget);
+  });
+
+  testWidgets('heading says "0 events" when nothing is on', (tester) async {
+    final viewModel = HomeViewModel(
+      eventsRepository: FakeEventsRepository(),
+      membersRepository: FakeMembersRepository(),
+    );
+    await tester.pumpWidget(
+      MaterialApp(home: HomeScreen(viewModel: viewModel)),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('0 events'), findsOneWidget);
+  });
 }
