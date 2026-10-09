@@ -19,9 +19,10 @@ supabase stop       # stop it when you're done
 
 Local dashboard: http://127.0.0.1:54323
 
-Test logins (local only, password `password123`):
-- `parent@example.com` - Test Family (with child member Ella)
-- `stranger@example.com` - Other Family
+Test logins (local only, password `1`):
+- `1` - Sarah, Test Family (with Dave and children Ella, Jack and Molly)
+- `2` - Dave, Test Family
+- `3` - Other Family
 
 ## Running the app
 

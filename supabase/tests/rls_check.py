@@ -20,9 +20,9 @@ import time
 import urllib.error
 import urllib.request
 
-FAMILY_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  # Test Family: Parent + Ella
+FAMILY_A = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"  # Test Family: Sarah, Dave + 3 children
 FAMILY_B = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"  # Other Family: Stranger
-PASSWORD = "password123"
+PASSWORD = "1"
 RUN = str(int(time.time()))  # makes names unique per run, e.g. "Scouts 1759152000"
 
 
@@ -79,8 +79,8 @@ def titles(rows):
     return {r["title"] for r in rows or []}
 
 
-parent = login("parent@example.com")
-stranger = login("stranger@example.com")
+parent = login("1")  # Sarah
+stranger = login("3")
 
 # --- Reading: each family sees only its own ---------------------------------
 print("\nReading")
@@ -95,7 +95,7 @@ check("Stranger sees only Other Family's events", s, 200, titles(rows) == {"Foot
 
 s, rows = call("GET", "/rest/v1/members?select=display_name", parent)
 check("Parent sees own family members, including child", s, 200,
-      {r["display_name"] for r in rows or []} == {"Parent", "Ella"})
+      {r["display_name"] for r in rows or []} == {"Sarah", "Dave", "Ella", "Jack", "Molly"})
 
 s, rows = call("GET", "/rest/v1/event_templates?select=title,family_id", parent)
 check("Parent sees starter and own templates", s, 200,
