@@ -98,9 +98,11 @@ class _ScheduleHeading extends StatelessWidget {
           Expanded(
             child: Text("Today's schedule", style: textTheme.titleLarge),
           ),
-          Text(
-            count == 1 ? '$count event' : '$count events',
-            style: textTheme.bodyMedium,
+          // Display only, like the notes chip; keeps the count's own style.
+          Chip(
+            label: Text(count == 1 ? '$count event' : '$count events'),
+            labelStyle: textTheme.bodyMedium,
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
         ],
       ),

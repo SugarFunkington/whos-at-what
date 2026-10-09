@@ -40,7 +40,32 @@ void main() {
 
     expect(find.text('🏊'), findsOneWidget);
     expect(find.text('Swimming'), findsOneWidget);
-    expect(find.text('to 09:30 · Leisure Centre'), findsOneWidget);
+    expect(find.text('until 09:30'), findsOneWidget);
+    expect(find.text('Leisure Centre'), findsOneWidget);
+  });
+
+  testWidgets('shows the end time and location on their own lines', (
+    tester,
+  ) async {
+    await pumpCard(
+      tester,
+      Event(
+        id: '1',
+        title: 'Swimming',
+        startsAt: DateTime(2026, 10, 26, 8, 30),
+        duration: const Duration(hours: 1),
+        location: 'Leisure Centre',
+      ),
+    );
+
+    final endTime = find.text('until 09:30');
+    final location = find.text('Leisure Centre');
+    expect(
+      tester.getTopLeft(location).dy,
+      greaterThan(tester.getBottomLeft(endTime).dy - 1),
+    );
+    expect(find.byIcon(Icons.schedule_outlined), findsOneWidget);
+    expect(find.byIcon(Icons.location_on_outlined), findsOneWidget);
   });
 
   testWidgets('shows just the title without any extras', (tester) async {
@@ -58,6 +83,7 @@ void main() {
     final texts = tester.widgetList<Text>(find.byType(Text)).map((t) => t.data);
     expect(texts, ['Football', 'E']);
     expect(find.byType(Chip), findsNothing);
+    expect(find.byType(Icon), findsNothing);
   });
 
   testWidgets('shows the notes in a chip', (tester) async {
@@ -114,6 +140,6 @@ void main() {
       ),
     );
 
-    expect(find.textContaining('to '), findsNothing);
+    expect(find.textContaining('until '), findsNothing);
   });
 }

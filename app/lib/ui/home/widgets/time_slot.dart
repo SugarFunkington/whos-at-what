@@ -1,6 +1,7 @@
 import 'package:app/domain/models/event.dart';
 import 'package:app/domain/models/member.dart';
 import 'package:app/ui/core/date_format_time.dart';
+import 'package:app/ui/core/event_colour.dart';
 import 'package:app/ui/core/themes/dimens.dart';
 import 'package:app/ui/home/widgets/event_card.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +27,9 @@ class TimeSlot extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
 
-  static const _timeColumnWidth = 50.0;
+  /// Left inset of the time within its column.
+  static const _timeIndent = Dimens.xs;
+  static const _timeColumnWidth = 50.0 + _timeIndent;
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +45,7 @@ class TimeSlot extends StatelessWidget {
           SizedBox(
             width: _timeColumnWidth,
             child: Padding(
-              padding: const EdgeInsets.only(top: Dimens.md),
+              padding: const EdgeInsets.only(top: Dimens.md, left: _timeIndent),
               child: Text(
                 first.allDay ? 'All day' : dateFormatTime(first.startsAt),
                 style: theme.textTheme.titleSmall,
@@ -91,7 +94,7 @@ class _TimelineMarker extends StatelessWidget {
   static const _lineWidth = 2.0;
 
   /// Puts the first dot's centre level with the time beside it.
-  static const _dotTop = 13.0;
+  static const _dotTop = 15.0;
 
   @override
   Widget build(BuildContext context) {
@@ -132,15 +135,14 @@ class _TimelineMarker extends StatelessWidget {
   }
 }
 
-/// A 14px dot in an event's colour, ringed in the page background so
-/// overlapping dots stay distinct.
+/// A 14px dot in an event's colour, with a light shadow so overlapping dots
+/// stay distinct.
 class TimelineDot extends StatelessWidget {
   const TimelineDot({super.key, required this.colour});
 
   final Color colour;
 
-  static const _ring = 2.0;
-  static const size = 14.0 + 2 * _ring;
+  static const size = 14.0;
 
   /// How far each dot in a stack covers the one above.
   static const overlap = 6.0;
@@ -153,10 +155,13 @@ class TimelineDot extends StatelessWidget {
       decoration: BoxDecoration(
         color: colour,
         shape: BoxShape.circle,
-        border: Border.all(
-          color: Theme.of(context).colorScheme.surfaceContainerLowest,
-          width: _ring,
-        ),
+        boxShadow: [
+          BoxShadow(
+            color: Theme.of(context).colorScheme.shadow.withValues(alpha: 0.2),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
+          ),
+        ],
       ),
     );
   }
