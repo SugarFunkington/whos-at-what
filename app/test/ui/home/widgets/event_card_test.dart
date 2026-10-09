@@ -40,7 +40,7 @@ void main() {
 
     expect(find.text('🏊'), findsOneWidget);
     expect(find.text('Swimming'), findsOneWidget);
-    expect(find.text('until 09:30'), findsOneWidget);
+    expect(find.text('until 9:30 AM'), findsOneWidget);
     expect(find.text('Leisure Centre'), findsOneWidget);
   });
 
@@ -58,7 +58,7 @@ void main() {
       ),
     );
 
-    final endTime = find.text('until 09:30');
+    final endTime = find.text('until 9:30 AM');
     final location = find.text('Leisure Centre');
     expect(
       tester.getTopLeft(location).dy,

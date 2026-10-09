@@ -27,7 +27,8 @@ void main() {
       Event(id: '2', title: 'Football', startsAt: DateTime(2026, 10, 26, 16)),
     ]);
 
-    expect(find.text('16:00'), findsOneWidget);
+    expect(find.text('4:00'), findsOneWidget);
+    expect(find.text('PM'), findsOneWidget);
     expect(find.byType(TimelineDot), findsNWidgets(2));
     expect(find.byType(EventCard), findsNWidgets(2));
   });
@@ -43,7 +44,8 @@ void main() {
     ]);
 
     expect(find.text('All day'), findsOneWidget);
-    expect(find.text('00:00'), findsNothing);
+    expect(find.text('12:00'), findsNothing);
+    expect(find.text('AM'), findsNothing);
   });
 
   testWidgets('each dot overlaps the one above', (tester) async {

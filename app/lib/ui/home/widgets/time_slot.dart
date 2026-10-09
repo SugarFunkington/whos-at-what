@@ -27,9 +27,8 @@ class TimeSlot extends StatelessWidget {
   final bool isFirst;
   final bool isLast;
 
-  /// Left inset of the time within its column.
-  static const _timeIndent = Dimens.xs;
-  static const _timeColumnWidth = 50.0 + _timeIndent;
+  /// Wide enough for "All day".
+  static const _timeColumnWidth = 54.0;
 
   @override
   Widget build(BuildContext context) {
@@ -45,10 +44,28 @@ class TimeSlot extends StatelessWidget {
           SizedBox(
             width: _timeColumnWidth,
             child: Padding(
-              padding: const EdgeInsets.only(top: Dimens.md, left: _timeIndent),
-              child: Text(
-                first.allDay ? 'All day' : dateFormatTime(first.startsAt),
-                style: theme.textTheme.titleSmall,
+              padding: const EdgeInsets.only(top: Dimens.md),
+              // Right-aligned, so every time sits the same distance from the
+              // line. Align lets its child shrink to its own width instead of
+              // filling the time column.
+              child: Align(
+                alignment: Alignment.topRight,
+                child: first.allDay
+                    ? Text('All day', style: theme.textTheme.titleSmall)
+                    // The clock, with a small AM/PM under it.
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            dateFormatClock(first.startsAt),
+                            style: theme.textTheme.titleSmall,
+                          ),
+                          Text(
+                            dateFormatPeriod(first.startsAt),
+                            style: theme.textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
               ),
             ),
           ),
