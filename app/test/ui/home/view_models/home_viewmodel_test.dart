@@ -162,4 +162,42 @@ void main() {
       expect(viewModel.membersOnToday, isEmpty);
     });
   });
+
+  test('timeSlots groups events that start together', () async {
+    final viewModel = viewModelWith([
+      Event(
+        id: '1',
+        title: 'Birthday',
+        startsAt: DateTime(2026, 10, 5),
+        allDay: true,
+      ),
+      Event(
+        id: '2',
+        title: 'Holiday',
+        startsAt: DateTime(2026, 10, 5),
+        allDay: true,
+      ),
+      Event(id: '3', title: 'Night feed', startsAt: DateTime(2026, 10, 5)),
+      Event(id: '4', title: 'Swimming', startsAt: DateTime(2026, 10, 5, 16)),
+      Event(id: '5', title: 'Football', startsAt: DateTime(2026, 10, 5, 16)),
+    ]);
+    await pumpEventQueue();
+
+    final titles = [
+      for (final slot in viewModel.timeSlots)
+        [for (final event in slot) event.title],
+    ];
+    expect(titles, [
+      ['Birthday', 'Holiday'],
+      ['Night feed'],
+      ['Swimming', 'Football'],
+    ]);
+  });
+
+  test('timeSlots is empty when nothing is on', () async {
+    final viewModel = viewModelWith([]);
+    await pumpEventQueue();
+
+    expect(viewModel.timeSlots, isEmpty);
+  });
 }

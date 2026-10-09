@@ -36,6 +36,26 @@ class HomeViewModel extends ChangeNotifier {
     return _members.where((member) => ids.contains(member.id)).toList();
   }
 
+  /// Today's events grouped by start time, in order. All-day events share
+  /// one group.
+  List<List<Event>> get timeSlots {
+    final slots = <List<Event>>[];
+    for (final event in _events) {
+      final previous = slots.lastOrNull?.last;
+      if (previous != null && _startTogether(previous, event)) {
+        slots.last.add(event);
+      } else {
+        slots.add([event]);
+      }
+    }
+    return slots;
+  }
+
+  static bool _startTogether(Event a, Event b) {
+    if (a.allDay || b.allDay) return a.allDay && b.allDay;
+    return a.startsAt == b.startsAt;
+  }
+
   /// The members [event] is for, in family order. Empty for a whole-family
   /// event.
   List<Member> membersFor(Event event) {

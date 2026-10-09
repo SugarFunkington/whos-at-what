@@ -1,7 +1,7 @@
 import 'package:app/ui/core/themes/dimens.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
-import 'package:app/ui/home/widgets/event_row.dart';
 import 'package:app/ui/home/widgets/home_header.dart';
+import 'package:app/ui/home/widgets/time_slot.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -47,19 +47,24 @@ class HomeScreen extends StatelessWidget {
               child: ListenableBuilder(
                 listenable: viewModel,
                 builder: (context, _) {
+                  final slots = viewModel.timeSlots;
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       _ScheduleHeading(count: viewModel.events.length),
-                      for (final (index, event)
-                          in viewModel.events.indexed) ...[
-                        if (index > 0) const Divider(height: 1),
-                        EventRow(
-                          key: ValueKey(event.id),
-                          event: event,
-                          members: viewModel.membersFor(event),
+                      for (final (index, slot) in slots.indexed)
+                        Padding(
+                          key: ValueKey(slot.first.id),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: Dimens.screenPadding,
+                          ),
+                          child: TimeSlot(
+                            events: slot,
+                            membersFor: viewModel.membersFor,
+                            isFirst: index == 0,
+                            isLast: index == slots.length - 1,
+                          ),
                         ),
-                      ],
                     ],
                   );
                 },

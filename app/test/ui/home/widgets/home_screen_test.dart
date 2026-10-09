@@ -2,7 +2,7 @@ import 'package:app/domain/models/event.dart';
 import 'package:app/domain/models/member.dart';
 import 'package:app/ui/core/member_avatar.dart';
 import 'package:app/ui/home/view_models/home_viewmodel.dart';
-import 'package:app/ui/home/widgets/event_row.dart';
+import 'package:app/ui/home/widgets/event_card.dart';
 import 'package:app/ui/home/widgets/home_header.dart';
 import 'package:app/ui/home/widgets/home_screen.dart';
 import 'package:app/utils/result.dart';
@@ -126,7 +126,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.byType(EventRow), findsNWidgets(2));
+    expect(find.byType(EventCard), findsNWidgets(2));
   });
 
   testWidgets('heading shows how many events there are', (tester) async {

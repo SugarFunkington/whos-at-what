@@ -1,7 +1,7 @@
 import 'package:app/domain/models/event.dart';
 import 'package:app/domain/models/member.dart';
 import 'package:app/ui/core/member_avatar.dart';
-import 'package:app/ui/home/widgets/event_row.dart';
+import 'package:app/ui/home/widgets/event_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -9,7 +9,7 @@ void main() {
   const parent = Member(id: 'parent', displayName: 'Parent');
   const ella = Member(id: 'ella', displayName: 'Ella');
 
-  Future<void> pumpRow(
+  Future<void> pumpCard(
     WidgetTester tester,
     Event event, {
     List<Member> members = const [],
@@ -17,19 +17,20 @@ void main() {
     return tester.pumpWidget(
       MaterialApp(
         home: Scaffold(
-          body: EventRow(event: event, members: members),
+          body: EventCard(event: event, members: members),
         ),
       ),
     );
   }
 
-  testWidgets('shows the time, emoji, title and location', (tester) async {
-    await pumpRow(
+  testWidgets('shows the emoji, title, end time and location', (tester) async {
+    await pumpCard(
       tester,
       Event(
         id: '1',
         title: 'Swimming',
         startsAt: DateTime(2026, 10, 26, 8, 30),
+        duration: const Duration(hours: 1),
         emoji: '🏊',
         location: 'Leisure Centre',
         memberIds: ['ella'],
@@ -37,15 +38,13 @@ void main() {
       members: [ella],
     );
 
-    expect(find.text('08:30'), findsOneWidget);
-    expect(find.text('🏊 Swimming'), findsOneWidget);
-    expect(find.text('Leisure Centre'), findsOneWidget);
+    expect(find.text('🏊'), findsOneWidget);
+    expect(find.text('Swimming'), findsOneWidget);
+    expect(find.text('to 09:30 · Leisure Centre'), findsOneWidget);
   });
 
-  testWidgets('shows just the title without an emoji or location', (
-    tester,
-  ) async {
-    await pumpRow(
+  testWidgets('shows just the title without any extras', (tester) async {
+    await pumpCard(
       tester,
       Event(
         id: '1',
@@ -57,11 +56,26 @@ void main() {
     );
 
     final texts = tester.widgetList<Text>(find.byType(Text)).map((t) => t.data);
-    expect(texts, ['10:00', 'Football', 'E']);
+    expect(texts, ['Football', 'E']);
+    expect(find.byType(Chip), findsNothing);
+  });
+
+  testWidgets('shows the notes in a chip', (tester) async {
+    await pumpCard(
+      tester,
+      Event(
+        id: '1',
+        title: 'Swimming',
+        startsAt: DateTime(2026, 10, 26, 16),
+        notes: 'Bring goggles',
+      ),
+    );
+
+    expect(find.widgetWithText(Chip, 'Bring goggles'), findsOneWidget);
   });
 
   testWidgets('shows an avatar for each member', (tester) async {
-    await pumpRow(
+    await pumpCard(
       tester,
       Event(
         id: '1',
@@ -79,7 +93,7 @@ void main() {
   testWidgets('shows the family avatar for a whole-family event', (
     tester,
   ) async {
-    await pumpRow(
+    await pumpCard(
       tester,
       Event(id: '1', title: 'Bins out', startsAt: DateTime(2026, 10, 26, 6)),
     );
@@ -88,18 +102,18 @@ void main() {
     expect(find.byType(MemberAvatar), findsNothing);
   });
 
-  testWidgets('shows "All day" instead of a time', (tester) async {
-    await pumpRow(
+  testWidgets('shows no end time for an all-day event', (tester) async {
+    await pumpCard(
       tester,
       Event(
         id: '1',
         title: 'Birthday',
         startsAt: DateTime(2026, 10, 26),
         allDay: true,
+        duration: const Duration(days: 1),
       ),
     );
 
-    expect(find.text('All day'), findsOneWidget);
-    expect(find.text('00:00'), findsNothing);
+    expect(find.textContaining('to '), findsNothing);
   });
 }

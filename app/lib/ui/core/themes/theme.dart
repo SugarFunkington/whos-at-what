@@ -1,7 +1,10 @@
 import 'package:app/ui/core/themes/colors.dart';
+import 'package:app/ui/core/themes/dimens.dart';
 import 'package:flutter/material.dart';
 
 abstract final class AppTheme {
+  static const _fontFamily = 'Manrope';
+
   static const _colorScheme = ColorScheme(
     brightness: Brightness.light,
     primary: AppColors.primary,
@@ -83,12 +86,25 @@ abstract final class AppTheme {
   static final lightTheme = ThemeData(
     colorScheme: _colorScheme,
     scaffoldBackgroundColor: AppColors.background,
-    fontFamily: 'Manrope',
+    fontFamily: _fontFamily,
     textTheme: _textTheme,
     dividerTheme: const DividerThemeData(
       color: AppColors.divider,
       thickness: 1,
       space: 1,
+    ),
+    // Outlined pill on a white fill, e.g. an event's notes.
+    chipTheme: ChipThemeData(
+      backgroundColor: AppColors.surface,
+      side: const BorderSide(color: AppColors.outline),
+      shape: const StadiumBorder(),
+      // fontFamily only reaches ThemeData's own text styles, so a component
+      // theme's style names the font itself.
+      labelStyle: _textTheme.labelSmall?.copyWith(
+        color: AppColors.muted,
+        fontFamily: _fontFamily,
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: Dimens.xs),
     ),
   );
 }
